@@ -67,7 +67,6 @@ slurm/run_precommit.sh
 *.pth
 *.ckpt
 *.safetensors
-models/
 
 # Environment variables
 .env

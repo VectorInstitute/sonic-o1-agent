@@ -251,6 +251,7 @@ class SonicNodes:
 
         self.load_model()
         assert self.model is not None
+        model = self.model
 
         multi_step_plan = state["multi_step_plan"]
         if not multi_step_plan:
@@ -299,7 +300,7 @@ class SonicNodes:
                     f"{ctx['previous_steps']}\n\n"
                     f"Current sub-task: {prompt}"
                 )
-            response_text, _ = self.model.generate(
+            response_text, _ = model.generate(
                 video_path=video_path_arg or video_path,
                 audio_path=audio_path_arg or audio_path,
                 prompt=prompt,

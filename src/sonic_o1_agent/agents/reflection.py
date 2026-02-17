@@ -218,7 +218,7 @@ Provide your improved response:"""
             max_frames=max_frames or 128,  # Re-analyze with fewer frames
         )
 
-        return refined
+        return str(refined)
 
     def iterative_refinement(
         self,
