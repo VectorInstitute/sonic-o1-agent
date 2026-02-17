@@ -8,15 +8,68 @@ wheels/
 
 # Virtual environments
 .venv
+.venv_*/
+env/
+venv/
 
 # Lint & Test
 .mypy_cache/
 .pytest_cache/
 .ruff_cache/
+.coverage
+htmlcov/
+*.cover
 
-# Vscode
-.vscode
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-# macos
+# macOS
 *.DS_Store
+.AppleDouble
+.LSOverride
+
+# Documentation
 site/
+docs/_build/
+
+# Logs
+logs/
+*.log
+*.out
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+.cache/
+
+# Data directories (user-specific files)
+data/raw/*
+data/processed/*
+data/outputs/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/outputs/.gitkeep
+
+# Local configuration and scripts (DO NOT PUSH)
+scripts/verify_in_container.sh
+slurm/run_sonic_agent.sh
+configs/agent_config.local.yaml
+
+# Model checkpoints and weights
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+models/
+
+# Environment variables
+.env
+.env.local
+
+# Archive folder
+.archive/
