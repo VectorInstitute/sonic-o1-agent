@@ -87,6 +87,9 @@ python_files = ["test_*.py"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
 ]
+filterwarnings = [
+    "ignore:builtin type .* has no __module__ attribute:DeprecationWarning",
+]
 
 [tool.ruff]
 line-length = 88
