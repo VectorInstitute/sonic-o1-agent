@@ -38,9 +38,7 @@ class Qwen3OmniModel:
         Args:
             config: Configuration dictionary with model settings
         """
-        self.model_path = config.get(
-            "model_path", "Qwen/Qwen3-Omni-30B-A3B-Instruct"
-        )
+        self.model_path = config.get("model_path", "Qwen/Qwen3-Omni-30B-A3B-Instruct")
         self.use_thinking = config.get("use_thinking", False)
 
         self.gpu_memory_utilization = config.get("gpu_memory_utilization", 0.85)
@@ -144,12 +142,9 @@ class Qwen3OmniModel:
             if self.max_model_len > 65536:
                 os.environ["VLLM_ALLOW_LONG_MAX_MODEL_LEN"] = "1"
 
+            logger.info(f"Loading Qwen3-Omni model from {self.model_path} with vLLM")
             logger.info(
-                f"Loading Qwen3-Omni model from {self.model_path} with vLLM"
-            )
-            logger.info(
-                f"Using {self.tensor_parallel_size} GPUs for tensor "
-                "parallelism"
+                f"Using {self.tensor_parallel_size} GPUs for tensor parallelism"
             )
             logger.info(f"Context length: {self.max_model_len} tokens")
 
@@ -168,19 +163,13 @@ class Qwen3OmniModel:
                 mm_processor_kwargs={"cache_gb": 0},
             )
 
-            self.processor = Qwen3OmniMoeProcessor.from_pretrained(
-                self.model_path
-            )
+            self.processor = Qwen3OmniMoeProcessor.from_pretrained(self.model_path)
 
             mode = "Thinking" if self.use_thinking else "Instruct"
-            logger.info(
-                f"Successfully loaded Qwen3-Omni with vLLM ({mode} mode)"
-            )
+            logger.info(f"Successfully loaded Qwen3-Omni with vLLM ({mode} mode)")
 
         except Exception as e:
-            raise RuntimeError(
-                f"Failed to load Qwen3-Omni model with vLLM: {e}"
-            )
+            raise RuntimeError(f"Failed to load Qwen3-Omni model with vLLM: {e}")
 
     def generate(
         self,
@@ -209,8 +198,7 @@ class Qwen3OmniModel:
         if self.llm is None or self.processor is None:
             try:
                 logger.warning(
-                    "Model found unloaded in generate(), attempting lazy "
-                    "load..."
+                    "Model found unloaded in generate(), attempting lazy load..."
                 )
                 self.load()
             except Exception:
@@ -241,9 +229,7 @@ class Qwen3OmniModel:
             assert video_path is not None
             video_path_obj = Path(video_path)
             if not video_path_obj.exists():
-                raise FileNotFoundError(
-                    f"Video file not found: {video_path_obj}"
-                )
+                raise FileNotFoundError(f"Video file not found: {video_path_obj}")
 
         actual_max_frames = (
             max_frames if max_frames is not None else self.default_max_frames
@@ -262,9 +248,7 @@ class Qwen3OmniModel:
                     "type": "video",
                     "video": str(video_path),
                     "max_frames": actual_max_frames,
-                    "min_frames": min(
-                        self.default_min_frames, actual_max_frames
-                    ),
+                    "min_frames": min(self.default_min_frames, actual_max_frames),
                 }
                 # Optional time-range for segment-level processing
                 if kwargs.get("video_start") is not None:
@@ -291,15 +275,12 @@ class Qwen3OmniModel:
                         content.append(audio_content)
                     else:
                         logger.info(
-                            f"Audio file {audio_path} has no audio stream, "
-                            "skipping"
+                            f"Audio file {audio_path} has no audio stream, skipping"
                         )
                         has_audio = False
                     test_container.close()
                 except Exception as e:
-                    logger.warning(
-                        f"Could not verify audio file {audio_path}: {e}"
-                    )
+                    logger.warning(f"Could not verify audio file {audio_path}: {e}")
                     audio_content = {
                         "type": "audio",
                         "audio": str(audio_path),
@@ -323,9 +304,7 @@ class Qwen3OmniModel:
                 use_audio_in_video=False,
                 max_audio_duration=None,
                 max_audio_chunks=max_audio_chunks,
-                audio_chunk_duration_sec=kwargs.get(
-                    "audio_chunk_duration_sec", 10.0
-                ),
+                audio_chunk_duration_sec=kwargs.get("audio_chunk_duration_sec", 10.0),
             )
 
             if audios is not None:
@@ -335,9 +314,7 @@ class Qwen3OmniModel:
 
             if audios is None and "<|audio_pad|>" in text:
                 text = text.replace("<|audio_pad|>", "").strip()
-                logger.info(
-                    "Removed <|audio_pad|> from prompt (no audio available)"
-                )
+                logger.info("Removed <|audio_pad|> from prompt (no audio available)")
 
             if max_audio_chunks is not None and audios is not None:
                 self.stats["audio_chunks_sampled"] += 1
@@ -404,9 +381,7 @@ class Qwen3OmniModel:
             if is_engine_dead or is_cache_error:
                 logger.error(f"Engine/Cache error: {e}")
                 self._reload_engine()
-                raise RuntimeError(
-                    f"Engine/cache error (engine reloaded): {e}"
-                )
+                raise RuntimeError(f"Engine/cache error (engine reloaded): {e}")
 
             if is_context_error:
                 logger.error(f"Context length error: {e}")
@@ -459,9 +434,7 @@ class Qwen3OmniModel:
         assert self.processor is not None
 
         # Wrap in chat template so the model sees role markers
-        conversation = [
-            {"role": "user", "content": [{"type": "text", "text": prompt}]}
-        ]
+        conversation = [{"role": "user", "content": [{"type": "text", "text": prompt}]}]
         formatted_prompt = self.processor.apply_chat_template(
             conversation, tokenize=False, add_generation_prompt=True
         )
@@ -469,14 +442,10 @@ class Qwen3OmniModel:
         inputs = {"prompt": formatted_prompt, "multi_modal_data": {}}
 
         try:
-            outputs = self.llm.generate(
-                [inputs], sampling_params=sampling_params
-            )
+            outputs = self.llm.generate([inputs], sampling_params=sampling_params)
             response_text: str = outputs[0].outputs[0].text
 
-            logger.info(
-                f"Generated text-only response ({len(response_text)} chars)"
-            )
+            logger.info(f"Generated text-only response ({len(response_text)} chars)")
             return response_text, {}
 
         except Exception as e:
@@ -530,9 +499,7 @@ class Qwen3OmniModel:
         except Exception as e:
             logger.warning(f"Error during manual process cleanup: {e}")
 
-        logger.info(
-            "Model unloaded, memory cleared, and child processes terminated"
-        )
+        logger.info("Model unloaded, memory cleared, and child processes terminated")
 
     def get_model_info(self) -> Dict[str, Any]:
         """Get model information and configuration."""
