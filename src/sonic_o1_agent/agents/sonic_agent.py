@@ -5,7 +5,7 @@ Author: Ahmed Y. Radwan, SONIC-O1 Team
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, Iterator, Optional
+from typing import Any, Dict, Iterator, List, Optional
 
 from sonic_o1_agent.workflows.graph import build_sonic_workflow
 
@@ -179,7 +179,7 @@ class SonicAgent:
             for node_name, state_update in event.items():
                 yield {"node": node_name, "state": state_update}
 
-    def _clean_temp_files(self, paths: list) -> None:
+    def _clean_temp_files(self, paths: List[str]) -> None:
         """Remove temporary files (e.g. from segmentation). Safe if missing."""
         for path in paths:
             if not path:

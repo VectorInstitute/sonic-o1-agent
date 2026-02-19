@@ -152,16 +152,60 @@ Provide your analysis."""
         """
         text = understanding.lower().strip()
         # Summarization: summary, overview, recap, etc.
-        if any(kw in text for kw in ("summarize", "summarise", "summary", "overview", "recap", "sum up")):
+        if any(
+            kw in text
+            for kw in (
+                "summarize",
+                "summarise",
+                "summary",
+                "overview",
+                "recap",
+                "sum up",
+            )
+        ):
             return "summarization"
         # Temporal: when, time, timestamp, moment, duration, etc.
-        if any(kw in text for kw in ("when", "time", "timestamp", "moment", "at what point", "duration", "minute", "second", "temporal")):
+        if any(
+            kw in text
+            for kw in (
+                "when",
+                "time",
+                "timestamp",
+                "moment",
+                "at what point",
+                "duration",
+                "minute",
+                "second",
+                "temporal",
+            )
+        ):
             return "temporal_localization"
         # Comparison: compare, contrast, difference, versus, etc.
-        if any(kw in text for kw in ("compare", "comparison", "contrast", "difference", "versus", "vs.", "versus")):
+        if any(
+            kw in text
+            for kw in (
+                "compare",
+                "comparison",
+                "contrast",
+                "difference",
+                "versus",
+                "vs.",
+            )
+        ):
             return "comparison"
         # Analysis: analyze, examine, assess, look at, etc.
-        if any(kw in text for kw in ("analyze", "analyse", "analysis", "examine", "assess", "look at", "break down")):
+        if any(
+            kw in text
+            for kw in (
+                "analyze",
+                "analyse",
+                "analysis",
+                "examine",
+                "assess",
+                "look at",
+                "break down",
+            )
+        ):
             return "analysis"
         return "general_qa"
 
@@ -205,14 +249,22 @@ Provide your plan."""
         text = plan.lower().strip()
 
         focused_keywords = (
-            "segment", "specific part", "portion", "section",
-            "specific range", "focus on",
+            "segment",
+            "specific part",
+            "portion",
+            "section",
+            "specific range",
+            "focus on",
         )
         if any(kw in text for kw in focused_keywords):
             return "focused_analysis"
 
         comparative_keywords = (
-            "compare", "comparison", "contrast", "difference", "versus"
+            "compare",
+            "comparison",
+            "contrast",
+            "difference",
+            "versus",
         )
         if any(kw in text for kw in comparative_keywords):
             return "comparative_analysis"
