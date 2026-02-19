@@ -189,7 +189,7 @@ python scripts/run_agent.py --video hearing.mp4 \
 ---
 
 ## Contact
-
+**Shaina Raza** - shaina.raza@vectorinstitute.ai
 **Ahmed Y. Radwan** — ahmed.radwan@vectorinstitute.ai
 Vector Institute for Artificial Intelligence
 

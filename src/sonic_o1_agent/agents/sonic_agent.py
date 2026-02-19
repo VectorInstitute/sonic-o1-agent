@@ -4,6 +4,7 @@ Author: Ahmed Y. Radwan, SONIC-O1 Team
 """
 
 import logging
+from pathlib import Path
 from typing import Any, Dict, Iterator, Optional
 
 from sonic_o1_agent.workflows.graph import build_sonic_workflow
@@ -177,6 +178,19 @@ class SonicAgent:
         ):
             for node_name, state_update in event.items():
                 yield {"node": node_name, "state": state_update}
+
+    def _clean_temp_files(self, paths: list) -> None:
+        """Remove temporary files (e.g. from segmentation). Safe if missing."""
+        for path in paths:
+            if not path:
+                continue
+            try:
+                p = Path(path)
+                if p.exists():
+                    p.unlink(missing_ok=True)
+                    logger.debug("Cleaned temp file: %s", path)
+            except OSError as e:
+                logger.warning("Failed to clean temp file %s: %s", path, e)
 
     def get_model_info(self) -> Dict[str, Any]:
         """Return backend and workflow info.

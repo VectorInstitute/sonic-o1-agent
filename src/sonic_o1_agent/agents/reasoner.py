@@ -145,18 +145,25 @@ Provide your analysis."""
         }
 
     def _extract_intent(self, understanding: str) -> str:
-        """Extract the core intent from understanding."""
-        # Simple extraction - in production, use structured output
-        if "summarize" in understanding.lower():
+        """Extract the core intent from understanding.
+
+        Uses normalized keyword matching so we don't rely on the LLM
+        using exact words (e.g. "summary" vs "summarize", "moment" vs "when").
+        """
+        text = understanding.lower().strip()
+        # Summarization: summary, overview, recap, etc.
+        if any(kw in text for kw in ("summarize", "summarise", "summary", "overview", "recap", "sum up")):
             return "summarization"
-        elif "when" in understanding.lower() or "time" in understanding.lower():
+        # Temporal: when, time, timestamp, moment, duration, etc.
+        if any(kw in text for kw in ("when", "time", "timestamp", "moment", "at what point", "duration", "minute", "second", "temporal")):
             return "temporal_localization"
-        elif "compare" in understanding.lower():
+        # Comparison: compare, contrast, difference, versus, etc.
+        if any(kw in text for kw in ("compare", "comparison", "contrast", "difference", "versus", "vs.", "versus")):
             return "comparison"
-        elif "analyze" in understanding.lower():
+        # Analysis: analyze, examine, assess, look at, etc.
+        if any(kw in text for kw in ("analyze", "analyse", "analysis", "examine", "assess", "look at", "break down")):
             return "analysis"
-        else:
-            return "general_qa"
+        return "general_qa"
 
     def _plan_approach(
         self, query: str, understanding: Dict, context: Dict
@@ -191,14 +198,26 @@ Provide your plan."""
         }
 
     def _extract_strategy(self, plan: str) -> str:
-        """Extract the strategy from the plan."""
-        # Simple extraction
-        if "segment" in plan.lower() or "specific part" in plan.lower():
+        """Extract the strategy from the plan.
+
+        Uses normalized keyword matching so we don't rely on exact LLM wording.
+        """
+        text = plan.lower().strip()
+
+        focused_keywords = (
+            "segment", "specific part", "portion", "section",
+            "specific range", "focus on",
+        )
+        if any(kw in text for kw in focused_keywords):
             return "focused_analysis"
-        elif "compare" in plan.lower() or "contrast" in plan.lower():
+
+        comparative_keywords = (
+            "compare", "comparison", "contrast", "difference", "versus"
+        )
+        if any(kw in text for kw in comparative_keywords):
             return "comparative_analysis"
-        else:
-            return "comprehensive_analysis"
+
+        return "comprehensive_analysis"
 
     def _execute_analysis(
         self,
