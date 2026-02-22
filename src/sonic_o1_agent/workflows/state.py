@@ -3,7 +3,7 @@
 Author: Ahmed Y. Radwan, SONIC-O1 Team
 """
 
-from typing import Any, Dict, List, Optional, TypedDict
+from typing import Any, Dict, List, Optional, Tuple, TypedDict
 
 
 class SonicState(TypedDict, total=False):
