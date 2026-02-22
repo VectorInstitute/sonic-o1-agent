@@ -28,7 +28,7 @@ class SonicState(TypedDict, total=False):
     # Planning outputs
     plan: Dict[str, Any]
     should_segment: bool
-    time_range: Optional[tuple]
+    time_range: Optional[Tuple[float, float]] 
     query_type: str
 
     # Segmentation outputs

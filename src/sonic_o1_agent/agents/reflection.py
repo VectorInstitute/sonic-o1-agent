@@ -334,10 +334,10 @@ If no hallucinations found, state: "No hallucinations detected"
 Provide your analysis:"""
 
         analysis, _ = self.model.generate(
-            video_path=None,
-            audio_path=None,
+            video_path=None, # Rely only on the response text for hallucination detection
+            audio_path=None, # Rely only on the response text for hallucination detection
             prompt=hallucination_prompt,
-            max_frames=0,
+            max_frames=0, # No video frames needed for hallucination detection
         )
 
         has_hallucination = "no hallucinations detected" not in analysis.lower()

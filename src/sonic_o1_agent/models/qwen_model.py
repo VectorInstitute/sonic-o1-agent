@@ -29,9 +29,6 @@ class Qwen3OmniModel:
     Supports text-only mode for reasoning steps.
     """
 
-    AUDIO_TOKENS_PER_SEC = 25
-    VIDEO_TOKENS_PER_FRAME = 250
-
     def __init__(self, config: Dict[str, Any]) -> None:
         """Initialize Qwen3-Omni model.
 
@@ -280,16 +277,10 @@ class Qwen3OmniModel:
                         has_audio = False
                     test_container.close()
                 except Exception as e:
-                    logger.warning(f"Could not verify audio file {audio_path}: {e}")
-                    audio_content = {
-                        "type": "audio",
-                        "audio": str(audio_path),
-                    }
-                    if kwargs.get("audio_start") is not None:
-                        audio_content["audio_start"] = kwargs["audio_start"]
-                    if kwargs.get("audio_end") is not None:
-                        audio_content["audio_end"] = kwargs["audio_end"]
-                    content.append(audio_content)
+                    logger.warning(
+                        f"Could not verify audio file {audio_path}: {e}. Skipping audio."
+                    )
+                    has_audio = False
 
             content.append({"type": "text", "text": prompt})
 

@@ -33,7 +33,7 @@ def load_audio_pyav(
 
     if len(container.streams.audio) == 0:
         container.close()
-        print(f"  Audio: No audio stream found in {audio_path}, returning empty array")
+        logging.info(f"  Audio: No audio stream found in {audio_path}, returning empty array")
         return np.array([], dtype=np.float32)
 
     audio_stream = container.streams.audio[0]
@@ -85,7 +85,7 @@ def load_audio_pyav(
     audio = audio_buffer[:write_pos]
 
     if len(audio) == 0:
-        print(
+        logging.info(
             f"  Audio: No audio data decoded from {audio_path}, returning empty array"
         )
         return np.array([], dtype=np.float32)
@@ -110,7 +110,7 @@ def load_audio_pyav(
         num_chunks = int(np.ceil(total_samples / samples_per_chunk))
 
         if num_chunks > max_chunks:
-            print(
+            logging.info(
                 f"  Audio chunking: {total_samples} samples -> {num_chunks} chunks, sampling {max_chunks}"
             )
 
@@ -124,7 +124,7 @@ def load_audio_pyav(
             sampled_chunks = [chunks[i] for i in sample_indices]
             audio = np.concatenate(sampled_chunks, axis=0)
 
-            print(f"  Final audio: {len(audio)} samples (from {total_samples})")
+            logging.info(f"  Final audio: {len(audio)} samples (from {total_samples})")
 
     elif max_duration is not None:
         max_samples = int(max_duration * sr)
@@ -143,7 +143,7 @@ def load_audio_pyav(
         was_truncated = actual_duration >= max_duration * 0.99
 
     status = " (chunked)" if was_chunked else (" (truncated)" if was_truncated else "")
-    print(f"  Audio: {actual_duration:.2f}s{status} in {time.time() - st:.3f}s")
+    logging.info(f"  Audio: {actual_duration:.2f}s{status} in {time.time() - st:.3f}s")
 
     return audio
 

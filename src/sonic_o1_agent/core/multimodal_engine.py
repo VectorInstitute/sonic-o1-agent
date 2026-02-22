@@ -115,6 +115,8 @@ def process_audio_info_pyav(
                                 )
                                 chunks.append(audio[start_idx:end_idx])
 
+                            # Evenly sample chunks across the timeline (beginning, middle, end)
+                            # rather than taking only the first max_audio_chunks.
                             sample_indices = np.linspace(
                                 0, num_chunks - 1, max_audio_chunks, dtype=int
                             )
@@ -192,6 +194,9 @@ def process_mm_info(
     audios: List[Any] = []
     images: List[Any] = []
     videos: List[Any] = []
+    # Metadata per item: video_metadata has duration_sec, fps, total_frames,
+    # frames_sampled, sampling_interval_sec, coverage_sec; audio_metadata has
+    # duration_sec, sample_rate, chunks_analyzed, chunk_duration_sec, coverage_sec.
     metadata: Dict[str, List[Any]] = {
         "video_metadata": [],
         "audio_metadata": [],

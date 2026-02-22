@@ -31,8 +31,19 @@ def should_route_inference(state: SonicState) -> str:
 
     Returns:
         "multi_step", "reasoning", or "direct".
+
+    Raises:
+        ValueError: If use_multi_step is True but multi_step_plan is missing or empty
+            (avoids masking planning failures by silently falling back to reasoning/direct).
     """
-    if state.get("use_multi_step") and state.get("multi_step_plan"):
+    use_multi = state.get("use_multi_step")
+    plan = state.get("multi_step_plan")
+    if use_multi and (not plan or (isinstance(plan, list) and len(plan) == 0)):
+        raise ValueError(
+            "use_multi_step is True but multi_step_plan is missing or empty; "
+            "planning may have failed."
+        )
+    if use_multi and plan:
         return "multi_step"
     return should_use_reasoning(state)
 

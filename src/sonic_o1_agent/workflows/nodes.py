@@ -133,7 +133,10 @@ class SonicNodes:
         temp_audio = None
 
         if video_path and video_path.exists():
-            temp_video = Path(tempfile.mktemp(suffix=".mp4", prefix="sonic_seg_"))
+            with tempfile.NamedTemporaryFile(
+                suffix=".mp4", prefix="sonic_seg_", delete=False
+            ) as f:
+                temp_video = Path(f.name)
             self.segmenter.extract_video_segment(
                 video_path, start_time, end_time, temp_video
             )
@@ -141,9 +144,10 @@ class SonicNodes:
 
         if audio_path and audio_path.exists():
             audio_format = audio_path.suffix[1:]
-            temp_audio = Path(
-                tempfile.mktemp(suffix=f".{audio_format}", prefix="sonic_seg_")
-            )
+            with tempfile.NamedTemporaryFile(
+                suffix=f".{audio_format}", prefix="sonic_seg_", delete=False
+            ) as f:
+                temp_audio = Path(f.name)
             self.segmenter.extract_audio_segment(
                 audio_path, start_time, end_time, temp_audio, audio_format
             )
@@ -255,7 +259,9 @@ class SonicNodes:
 
         multi_step_plan = state["multi_step_plan"]
         if not multi_step_plan:
-            # Fallback: single direct inference
+            logger.info(
+                "multi_step_plan empty or missing; falling back to single direct inference"
+            )
             return self.direct_inference_node(state)
 
         max_frames = state.get("max_frames") or state["plan"]["max_frames"]

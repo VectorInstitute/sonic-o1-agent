@@ -176,7 +176,7 @@ def fetch_video_pyav(ele: dict, image_factor: int = IMAGE_FACTOR) -> torch.Tenso
 
     video = torch.from_numpy(frames_array).permute(0, 3, 1, 2).float()
 
-    print(
+    logging.info(
         f"  Video: {nframes} frames ({height}x{width} -> {resized_height}x{resized_width}) in {time.time() - st:.3f}s"
     )
     return video

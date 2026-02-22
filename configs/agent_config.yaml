@@ -7,13 +7,13 @@ agent:
 
 model:
   model_path: "Qwen/Qwen3-Omni-30B-A3B-Instruct"
-  use_thinking: false
+  use_thinking: false #  Design of Choice to use Instruct
 
   # vLLM settings
-  gpu_memory_utilization: 0.85
+  gpu_memory_utilization: 0.85 #  Memory utilization for the GPU
   tensor_parallel_size: 4  # Number of GPUs
-  max_num_seqs: 1
-  max_model_len: 65536
+  max_num_seqs: 1 #  Maximum number of sequences to process
+  max_model_len: 65536 #  Maximum Context length of the model
 
   # Generation settings
   generation_config:

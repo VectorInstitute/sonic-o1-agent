@@ -90,31 +90,60 @@ Cleanup → Final Answer
 ```yaml
 model:
   model_path: "Qwen/Qwen3-Omni-30B-A3B-Instruct"
-  tensor_parallel_size: 4
-  max_frames: 128
+  use_thinking: false
+
+  # vLLM settings
+  gpu_memory_utilization: 0.85
+  tensor_parallel_size: 4  # Number of GPUs
+  max_num_seqs: 1
+  max_model_len: 65536
+
+  # Generation settings
+  generation_config:
+    temperature: 0.0
+    top_p: 0.95
+    top_k: 20
+    max_new_tokens: 8192
+
+  # Multimodal limits
+  limit_mm_per_prompt:
+    image: 1
+    video: 1
+    audio: 1
 
 processing:
-  max_audio_chunks: null
-  min_video_duration_for_segmentation: 300  # seconds
+  # Default processing parameters
+  max_frames: 64
+  max_audio_chunks: 32  # null = no chunking, or specify int
+  audio_chunk_duration_sec: 10.0
 
-temporal_index:
-  min_duration_sec: 180       # skip indexing for shorter videos
-  num_segments: 10
-  max_frames_per_segment: 16
-  caption_max_tokens: 256
+  # Segmentation thresholds
+  min_video_duration_for_segmentation: 300  # 5 minutes
+  segment_efficiency_threshold: 0.8  # Segment if <80% of total
 
+# Chain-of-Thought Reasoning Settings
 reasoning:
-  max_reasoning_steps: 5
-  enable_verification: true
+  max_reasoning_steps: 5  # Maximum CoT steps
+  enable_verification: true  # Enable verification step
 
+# Self-Reflection Settings
 reflection:
-  confidence_threshold: 0.7
-  max_refinement_attempts: 2
-  use_iterative_refinement: false   # loop until ACCEPT or threshold
-  check_hallucination: false        # post-response hallucination check
+  confidence_threshold: 0.7  # Minimum confidence to accept
+  max_refinement_attempts: 2  # Max iterations for refinement
+  use_iterative_refinement: true  # Set true to loop until confidence threshold
+  check_hallucination: true  # Check for hallucination
 
+# Temporal Index Settings (frame-captioned segment grounding)
+temporal_index:
+  min_duration_sec: 180  # Skip indexing for videos shorter than this
+  num_segments: 10  # Number of segments to split the video into
+  max_frames_per_segment: 16  # Frames sampled per segment caption
+  caption_max_tokens: 128  # Max tokens per segment caption
+
+# Multi-Step Planning Settings
 planning:
-  max_steps: 10
+  max_steps: 10  # Maximum decomposition steps
+  enable_auto_decompose: true  # Auto-detect complex queries
 ```
 
 ---
