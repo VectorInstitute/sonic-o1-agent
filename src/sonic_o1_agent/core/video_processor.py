@@ -5,6 +5,7 @@ Memory-efficient video frame sampling and processing.
 Author: Ahmed Y. Radwan, SONIC-O1 Team
 """
 
+import logging
 import time
 from dataclasses import dataclass
 from typing import Dict, Optional, cast
@@ -26,6 +27,8 @@ from sonic_o1_agent.core.multimodal_utils import (
     smart_nframes,
     smart_resize,
 )
+
+logger = logging.getLogger(__name__)
 
 
 # ============================================================================
@@ -176,7 +179,7 @@ def fetch_video_pyav(ele: dict, image_factor: int = IMAGE_FACTOR) -> torch.Tenso
 
     video = torch.from_numpy(frames_array).permute(0, 3, 1, 2).float()
 
-    logging.info(
+    logger.info(
         f"  Video: {nframes} frames ({height}x{width} -> {resized_height}x{resized_width}) in {time.time() - st:.3f}s"
     )
     return video

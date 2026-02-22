@@ -155,11 +155,20 @@ class TestWorkflowRoutingMultiStep:
         state = {}
         assert should_route_inference(state) == "direct"
 
-    def test_route_inference_multi_step_empty_plan_goes_direct(self):
-        """When use_multi_step but multi_step_plan empty, use reasoning/direct."""
+    def test_route_inference_multi_step_empty_plan_raises(self):
+        """When use_multi_step is True but multi_step_plan missing/empty, raise to avoid masking planning failures."""
         from sonic_o1_agent.workflows.graph import should_route_inference
 
-        state = {"use_multi_step": True, "multi_step_plan": None}
+        for plan_value in (None, [], []):
+            state = {"use_multi_step": True, "multi_step_plan": plan_value}
+            with pytest.raises(ValueError, match="multi_step_plan is missing or empty"):
+                should_route_inference(state)
+
+    def test_route_inference_without_multi_step_uses_reasoning_or_direct(self):
+        """When use_multi_step is False, route to reasoning or direct."""
+        from sonic_o1_agent.workflows.graph import should_route_inference
+
+        state = {"use_multi_step": False}
         assert should_route_inference(state) == "direct"
         state["use_reasoning"] = True
         assert should_route_inference(state) == "reasoning"
