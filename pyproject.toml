@@ -20,6 +20,8 @@ dependencies = [
     # vLLM for efficient inference (required for Qwen3-Omni)
     "vllm>=0.5.0",
     "langgraph>=0.2.0",
+    # Pin ray>=2.54.0 to address CVE-2026-27482 (audit fails on 2.53.0)
+    "ray>=2.54.0",
 
     # Qwen3-Omni specific
     "qwen-omni-utils>=0.0.8",
