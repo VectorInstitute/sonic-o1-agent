@@ -89,7 +89,17 @@ class SonicNodes:
             state["query"]
         ):
             multi_step_plan = self.multi_step_planner.decompose_query(state["query"])
-            logger.info("Multi-step plan: %d steps", len(multi_step_plan))
+            if multi_step_plan:
+                logger.info("Multi-step plan: %d steps", len(multi_step_plan))
+            else:
+                multi_step_plan = None
+
+        # If user requested multi-step but we have no plan
+        # (query not decomposable or
+        # decomposition failed),
+        # turn off multi-step so the router falls back to
+        # reasoning/direct instead of raising.
+        use_multi_step = bool(state.get("use_multi_step") and multi_step_plan)
 
         return {
             "plan": plan,
@@ -97,6 +107,7 @@ class SonicNodes:
             "time_range": plan.get("time_range"),
             "query_type": plan["query_type"],
             "multi_step_plan": multi_step_plan,
+            "use_multi_step": use_multi_step,
         }
 
     def segmentation_node(self, state: SonicState) -> SonicState:
