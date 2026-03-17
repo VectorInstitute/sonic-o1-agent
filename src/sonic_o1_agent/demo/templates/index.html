@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sonic O1 Agent | Vector Institute</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+  <div class="noise"></div>
+
+  <header>
+    <div class="header-left">
+      <div class="logo">
+        <span class="logo-sonic">Sonic</span><span class="logo-o1"> O1</span><span class="logo-agent"> Agent</span>
+      </div>
+      <span class="logo-tagline">Multi-agent video &amp; audio understanding</span>
+    </div>
+    <img
+      src="/static/Vector-Logo-FullColour_Horizontal.png"
+      alt="Vector Institute"
+      class="vector-logo"
+    />
+  </header>
+
+  <main>
+
+    <!-- ============================================================
+         SECTION 1 — INPUT
+         ============================================================ -->
+    <section class="input-section">
+      <div class="section-label">
+        <span class="label-num">01</span>
+        <span class="label-text">Upload &amp; Ask</span>
+      </div>
+
+      <!-- VIDEO UPLOAD -->
+      <div id="upload-zone" class="upload-zone">
+        <div class="upload-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M15 10l-4-4-4 4"/>
+            <path d="M11 6v9"/>
+            <rect x="3" y="14" width="18" height="7" rx="2"/>
+            <circle cx="7" cy="17.5" r=".5" fill="currentColor"/>
+          </svg>
+        </div>
+        <p class="upload-label">Drop a video file here or <span class="upload-browse">browse</span></p>
+        <p class="upload-hint">MP4, MOV, AVI, MKV — max 30 minutes</p>
+        <input type="file" id="video-input" accept="video/*" hidden />
+      </div>
+
+      <!-- FILE PREVIEW (hidden until file chosen) -->
+      <div id="file-preview" class="file-preview hidden">
+        <div class="file-preview-info">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="3"/><polygon points="10 8 16 12 10 16"/></svg>
+          <span id="file-name" class="file-name"></span>
+          <span id="file-size" class="file-size"></span>
+        </div>
+        <button id="file-remove" class="file-remove" title="Remove">✕</button>
+      </div>
+
+      <!-- EXAMPLE CHIPS -->
+      <div class="examples">
+        <span class="examples-label">Example queries</span>
+        <button class="example-chip" data-text="Summarize what happens in this video, including key dialogue and actions.">Summarize</button>
+        <button class="example-chip" data-text="What are the main topics discussed in this conversation? Provide timestamps.">Topics &amp; timestamps</button>
+        <button class="example-chip" data-text="Identify any emotional shifts in the speakers throughout the video.">Emotion analysis</button>
+        <button class="example-chip" data-text="What evidence supports or contradicts the main argument made in this video?">Evidence check</button>
+      </div>
+
+      <!-- QUERY INPUT -->
+      <textarea
+        id="query-text"
+        placeholder="Ask anything about the video — summarisation, temporal grounding, reasoning..."
+        spellcheck="false"
+      ></textarea>
+
+      <div class="input-footer">
+        <span id="char-count" class="char-count">0 / 2000</span>
+        <span class="disclaimer-inline">⚠ Results are AI-generated and should be verified against the source material.</span>
+        <button id="analyze-btn" class="analyze-btn" disabled>
+          <span class="btn-text">Analyze</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         PIPELINE PROGRESS
+         ============================================================ -->
+    <div id="pipeline" class="pipeline hidden">
+      <div class="section-label">
+        <span class="label-num">02</span>
+        <span class="label-text">Pipeline Progress</span>
+      </div>
+
+      <div class="pipeline-track">
+        <div class="pipeline-node" data-node="planning">
+          <div class="node-indicator"><span class="node-dot"></span></div>
+          <div class="node-info">
+            <span class="node-name">Planning</span>
+            <span class="node-desc">Decomposing query into steps</span>
+          </div>
+          <span class="node-time"></span>
+        </div>
+        <div class="pipeline-connector"></div>
+
+        <div class="pipeline-node" data-node="segmentation">
+          <div class="node-indicator"><span class="node-dot"></span></div>
+          <div class="node-info">
+            <span class="node-name">Segmentation</span>
+            <span class="node-desc">Splitting video into segments</span>
+          </div>
+          <span class="node-time"></span>
+        </div>
+        <div class="pipeline-connector"></div>
+
+        <div class="pipeline-node" data-node="temporal_indexing">
+          <div class="node-indicator"><span class="node-dot"></span></div>
+          <div class="node-info">
+            <span class="node-name">Temporal Indexing</span>
+            <span class="node-desc">Captioning segments for grounding</span>
+          </div>
+          <span class="node-time"></span>
+        </div>
+        <div class="pipeline-connector"></div>
+
+        <div class="pipeline-node" data-node="inference">
+          <div class="node-indicator"><span class="node-dot"></span></div>
+          <div class="node-info">
+            <span class="node-name">Inference</span>
+            <span class="node-desc">Multi-step reasoning &amp; analysis</span>
+          </div>
+          <span class="node-time"></span>
+        </div>
+        <div class="pipeline-connector"></div>
+
+        <div class="pipeline-node" data-node="reflection">
+          <div class="node-indicator"><span class="node-dot"></span></div>
+          <div class="node-info">
+            <span class="node-name">Reflection</span>
+            <span class="node-desc">Self-evaluation &amp; refinement</span>
+          </div>
+          <span class="node-time"></span>
+        </div>
+        <div class="pipeline-connector"></div>
+
+        <div class="pipeline-node" data-node="cleanup">
+          <div class="node-indicator"><span class="node-dot"></span></div>
+          <div class="node-info">
+            <span class="node-name">Complete</span>
+            <span class="node-desc">Finalising results</span>
+          </div>
+          <span class="node-time"></span>
+        </div>
+      </div>
+
+      <!-- LIVE THINKING PANEL -->
+      <div id="thinking-panel" class="thinking-panel">
+        <div class="thinking-header">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <span class="thinking-title">Live Progress</span>
+        </div>
+        <div id="thinking-log" class="thinking-log"></div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         RESULTS
+         ============================================================ -->
+    <div id="results" class="results hidden">
+
+      <!-- ANSWER -->
+      <section class="answer-section">
+        <div class="section-label">
+          <span class="label-num">03</span>
+          <span class="label-text">Answer</span>
+        </div>
+        <div class="answer-card">
+          <div class="answer-header">
+            <span class="answer-title">Response</span>
+            <div class="confidence-badge" id="confidence-badge">
+              <span class="confidence-label">Confidence</span>
+              <span class="confidence-value" id="confidence-value">—</span>
+            </div>
+          </div>
+          <div id="answer-text" class="answer-body"></div>
+          <button class="copy-btn" id="copy-btn" title="Copy response">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+      </section>
+
+      <!-- MULTI-STEP PLAN -->
+      <section id="plan-section" class="plan-section hidden">
+        <div class="section-label">
+          <span class="label-num">04</span>
+          <span class="label-text">Execution Plan</span>
+        </div>
+        <div id="plan-list" class="plan-list"></div>
+      </section>
+
+      <!-- REASONING CHAIN -->
+      <section id="reasoning-section" class="reasoning-section hidden">
+        <div class="section-label">
+          <span class="label-num">05</span>
+          <span class="label-text">Reasoning Chain</span>
+        </div>
+        <div id="reasoning-list" class="reasoning-list"></div>
+      </section>
+
+      <!-- REFLECTION DETAILS -->
+      <section id="reflection-section" class="reflection-section hidden">
+        <div class="section-label">
+          <span class="label-num">06</span>
+          <span class="label-text">Self-Reflection</span>
+        </div>
+
+        <div class="reflection-grid">
+          <!-- Score Cards -->
+          <div class="score-cards" id="score-cards"></div>
+
+          <!-- Hallucination -->
+          <div id="hallucination-card" class="hallucination-card hidden">
+            <span class="hallucination-label">Hallucination Check</span>
+            <span class="hallucination-value" id="hallucination-value"></span>
+          </div>
+
+          <!-- Refinement History -->
+          <div id="refinement-section" class="refinement-section hidden">
+            <span class="refinement-label">Refinement History</span>
+            <div id="refinement-list" class="refinement-list"></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <footer class="site-footer">Copyright © 2026, Vector AI Engineering</footer>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>

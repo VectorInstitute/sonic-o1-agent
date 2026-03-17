@@ -1,5 +1,27 @@
 # Sonic O1 Agent Configuration
 # Author: Ahmed Y. Radwan, SONIC-O1 Team
+#
+# TEST CONFIG — Server mode enabled (connects to external vLLM serve)
+#
+# Start vLLM server first:
+#   vllm serve Qwen/Qwen3-Omni-30B-A3B-Instruct \
+#     --port 8080 --host 0.0.0.0 \
+#     --dtype bfloat16 --max-model-len 65536 \
+#     --allowed-local-media-path / \
+#     -tp 4
+#
+# Then run agent:
+#   python scripts/run_agent.py \
+#     --config configs/agent_config_server.yaml \
+#     --video /path/to/video.mp4 \
+#     --audio /path/to/audio.m4a \
+#     --query "Summarize the key points" \
+#     --all-features --verbose
+#
+# Or run demo:
+#   sonic-o1-agent serve \
+#     --config configs/agent_config_server.yaml \
+#     --port 8000
 
 agent:
   name: "sonic-o1-agent"
@@ -7,57 +29,67 @@ agent:
 
 model:
   model_path: "Qwen/Qwen3-Omni-30B-A3B-Instruct"
-  use_thinking: false #  Design of Choice to use Instruct
+  use_thinking: false
 
-  # vLLM settings
-  gpu_memory_utilization: 0.85 #  Memory utilization for the GPU
-  tensor_parallel_size: 4  # Number of GPUs
-  max_num_seqs: 1 #  Maximum number of sequences to process
-  max_model_len: 65536 #  Maximum Context length of the model
+  # ═══════════════════════════════════════════════════════════════════
+  # SERVER MODE — set this to your running vLLM server URL
+  # ═══════════════════════════════════════════════════════════════════
+  # Replace with your actual vLLM server address.
+  # Format: http://<host>:<port>/v1
+  #
+  # If empty or omitted → falls back to embedded mode (loads model
+  # in-process via vllm.LLM, same as original behaviour).
+  #
+  # Can also be overridden by VLLM_BASE_URL environment variable.
+  vllm_base_url: "http://localhost:8080/v1" # "" to use no server
 
-  # Generation settings
+  # ═══════════════════════════════════════════════════════════════════
+  # Embedded vLLM settings (only used when vllm_base_url is empty)
+  # Kept here so you can switch back by clearing vllm_base_url
+  # ═══════════════════════════════════════════════════════════════════
+  gpu_memory_utilization: 0.85
+  tensor_parallel_size: 4
+  max_num_seqs: 1
+  max_model_len: 65536
+
+  # Generation settings (used in BOTH modes)
   generation_config:
     temperature: 0.0
     top_p: 0.95
     top_k: 20
     max_new_tokens: 8192
 
-  # Multimodal limits
+  # Multimodal limits (embedded mode only)
   limit_mm_per_prompt:
     image: 1
     video: 1
     audio: 1
 
 processing:
-  # Default processing parameters
   max_frames: 64
-  max_audio_chunks: 32  # null = no chunking, or specify int
+  max_audio_chunks: 32
   audio_chunk_duration_sec: 10.0
+  min_video_duration_for_segmentation: 300
+  segment_efficiency_threshold: 0.8
 
-  # Segmentation thresholds
-  min_video_duration_for_segmentation: 300  # 5 minutes
-  segment_efficiency_threshold: 0.8  # Segment if <80% of total
 
-# Chain-of-Thought Reasoning Settings
 reasoning:
-  max_reasoning_steps: 5  # Maximum CoT steps
-  enable_verification: true  # Enable verification step
+  max_reasoning_steps: 5
+  enable_verification: true
 
-# Self-Reflection Settings
 reflection:
-  confidence_threshold: 0.7  # Minimum confidence to accept
-  max_refinement_attempts: 2  # Max iterations for refinement
-  use_iterative_refinement: true  # Set true to loop until confidence threshold
-  check_hallucination: true  # Check for hallucination
+  confidence_threshold: 0.7
+  max_refinement_attempts: 2
+  use_iterative_refinement: true
+  check_hallucination: true
 
-# Temporal Index Settings (frame-captioned segment grounding)
 temporal_index:
-  min_duration_sec: 180  # Skip indexing for videos shorter than this
-  num_segments: 10  # Number of segments to split the video into
-  max_frames_per_segment: 16  # Frames sampled per segment caption
-  caption_max_tokens: 128  # Max tokens per segment caption
+  min_duration_sec: 180
+  num_segments: 10
+  max_frames_per_segment: 16
+  caption_max_tokens: 128
+  max_parallel: 10
 
-# Multi-Step Planning Settings
 planning:
-  max_steps: 10  # Maximum decomposition steps
-  enable_auto_decompose: true  # Auto-detect complex queries
+  max_steps: 10
+  enable_auto_decompose: true

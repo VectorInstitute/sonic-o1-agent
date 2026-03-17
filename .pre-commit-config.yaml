@@ -40,7 +40,7 @@ repos:
       args: [--config-file, pyproject.toml]
       additional_dependencies: [types-PyYAML>=6.0.0]
       types: [python]
-      exclude: "tests"
+      exclude: "tests|src/sonic_o1_agent/api\\.py"
 
   - repo: https://github.com/crate-ci/typos
     rev: v1.42.1
@@ -60,6 +60,8 @@ repos:
       name: doctest
       entry: python3 -m doctest -o NORMALIZE_WHITESPACE
       files: "^src/sonic_o1_agent/"
+      exclude: "src/sonic_o1_agent/(demo|api\\.py)"
+      types: [python]
       language: system
 
   - repo: local

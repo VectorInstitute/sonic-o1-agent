@@ -59,6 +59,17 @@
 
 ---
 
+## API Server
+
+### Demo Server
+
+::: sonic_o1_agent.api
+    options:
+      show_root_heading: true
+      show_root_full_path: true
+
+---
+
 ## Processors
 
 ### PromptBuilder

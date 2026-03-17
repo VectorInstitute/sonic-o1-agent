@@ -4,12 +4,19 @@ Splits sampled video frames into segments, generates a short caption
 per segment via the VLM, and assembles a timestamped text index that
 downstream prompts can reference for accurate temporal citations.
 
+When the model is running in **server mode** (vLLM HTTP server),
+segment captioning is parallelised via ``ThreadPoolExecutor`` so
+that vLLM's continuous batching can process them concurrently.
+In embedded mode, segments are captioned serially (the in-process
+vLLM engine is single-threaded).
+
 Author: Ahmed Y. Radwan, SONIC-O1 Team
 """
 
 import logging
 import math
-from typing import Any, Dict, List, Optional
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -51,12 +58,15 @@ class TemporalIndexBuilder:
                   segment caption (default ``16``).
                 - ``caption_max_tokens`` -- max tokens per caption
                   (default ``256``).
+                - ``max_parallel`` -- max concurrent caption requests
+                  in server mode (default ``5``).
         """
         config = config or {}
         self.min_duration_sec = config.get("min_duration_sec", 120)
         self.num_segments = config.get("num_segments", 10)
         self.max_frames_per_segment = config.get("max_frames_per_segment", 16)
         self.caption_max_tokens = config.get("caption_max_tokens", 256)
+        self.max_parallel = config.get("max_parallel", 5)
 
     # ------------------------------------------------------------------
     # Public API
@@ -73,6 +83,9 @@ class TemporalIndexBuilder:
         Videos shorter than ``min_duration_sec`` are skipped (returns
         an empty string) because the model can process the entire clip
         in a single pass without needing segment-level grounding.
+
+        Automatically selects parallel or serial captioning based on
+        whether the model is in server mode.
 
         Args:
             model: A loaded ``Qwen3OmniModel`` (or compatible) instance.
@@ -103,19 +116,17 @@ class TemporalIndexBuilder:
             duration_sec,
         )
 
-        entries: List[str] = []
-        for start_sec, end_sec in segments:
-            caption = self._caption_segment(
-                model=model,
-                video_path=video_path,
-                audio_path=audio_path,
-                start_sec=start_sec,
-                end_sec=end_sec,
-                max_frames=self.max_frames_per_segment,
+        # Choose parallel vs serial based on model backend
+        is_server_mode = getattr(model, "_server_mode", False)
+
+        if is_server_mode and len(segments) > 1:
+            entries = self._caption_segments_parallel(
+                model, video_path, audio_path, segments
             )
-            if caption:
-                label = f"[{start_sec:.0f}s - {end_sec:.0f}s]"
-                entries.append(f"{label} {caption}")
+        else:
+            entries = self._caption_segments_serial(
+                model, video_path, audio_path, segments
+            )
 
         if not entries:
             logger.warning("Temporal index is empty -- captioning failed")
@@ -130,9 +141,111 @@ class TemporalIndexBuilder:
         return index_text
 
     # ------------------------------------------------------------------
+    # Serial captioning (embedded mode)
+    # ------------------------------------------------------------------
+    def _caption_segments_serial(
+        self,
+        model: Any,
+        video_path: str,
+        audio_path: Optional[str],
+        segments: List[Tuple[float, float]],
+    ) -> List[str]:
+        """Caption segments one at a time (original behaviour).
+
+        Used in embedded mode where the in-process vLLM engine
+        processes one request at a time.
+        """
+        logger.info("Temporal indexing: serial mode (%d segments)", len(segments))
+        entries: List[str] = []
+
+        for start_sec, end_sec in segments:
+            caption = self._caption_segment(
+                model=model,
+                video_path=video_path,
+                audio_path=audio_path,
+                start_sec=start_sec,
+                end_sec=end_sec,
+                max_frames=self.max_frames_per_segment,
+            )
+            if caption:
+                label = f"[{start_sec:.0f}s - {end_sec:.0f}s]"
+                entries.append(f"{label} {caption}")
+
+        return entries
+
+    # ------------------------------------------------------------------
+    # Parallel captioning (server mode)
+    # ------------------------------------------------------------------
+    def _caption_segments_parallel(
+        self,
+        model: Any,
+        video_path: str,
+        audio_path: Optional[str],
+        segments: List[Tuple[float, float]],
+    ) -> List[str]:
+        """Caption segments concurrently via ThreadPoolExecutor.
+
+        Each segment fires a separate HTTP request to the vLLM server.
+        vLLM's continuous batching processes them concurrently, giving
+        near-linear speedup.
+
+        Results are collected and sorted back to original segment order.
+        """
+        max_workers = min(self.max_parallel, len(segments))
+        logger.info(
+            "Temporal indexing: parallel mode (%d segments, %d workers)",
+            len(segments),
+            max_workers,
+        )
+
+        # Each future maps to (segment_index, start_sec, end_sec)
+        results: Dict[int, str] = {}
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_idx = {}
+
+            for idx, (start_sec, end_sec) in enumerate(segments):
+                future = executor.submit(
+                    self._caption_segment,
+                    model=model,
+                    video_path=video_path,
+                    audio_path=audio_path,
+                    start_sec=start_sec,
+                    end_sec=end_sec,
+                    max_frames=self.max_frames_per_segment,
+                )
+                future_to_idx[future] = (idx, start_sec, end_sec)
+
+            for future in as_completed(future_to_idx):
+                idx, start_sec, end_sec = future_to_idx[future]
+                try:
+                    caption = future.result()
+                    if caption:
+                        label = f"[{start_sec:.0f}s - {end_sec:.0f}s]"
+                        results[idx] = f"{label} {caption}"
+                        logger.debug(
+                            "Segment %d/%d captioned (%.0fs-%.0fs)",
+                            idx + 1,
+                            len(segments),
+                            start_sec,
+                            end_sec,
+                        )
+                except Exception as exc:
+                    logger.warning(
+                        "Parallel caption failed for segment %d (%.0fs-%.0fs): %s",
+                        idx,
+                        start_sec,
+                        end_sec,
+                        exc,
+                    )
+
+        # Return in original segment order
+        return [results[i] for i in sorted(results.keys())]
+
+    # ------------------------------------------------------------------
     # Internals
     # ------------------------------------------------------------------
-    def _compute_segments(self, duration_sec: float) -> List[tuple]:
+    def _compute_segments(self, duration_sec: float) -> List[Tuple[float, float]]:
         """Divide the video duration into equal-length segments.
 
         Args:

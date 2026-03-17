@@ -8,6 +8,16 @@ from video and audio content.
 
 ---
 
+## Demo
+
+<video src="https://drive.google.com/file/d/1e1qv4JCKqeDc7UdZTIx1-c39zqXNKWtr/preview" width="100%" controls></video>
+
+> **[▶ Watch the full demo video](https://drive.google.com/file/d/1e1qv4JCKqeDc7UdZTIx1-c39zqXNKWtr/view?usp=sharing)** — Upload a video, ask a question, and watch the multi-agent pipeline analyze it in real-time with planning, temporal indexing, chain-of-thought reasoning, and self-reflection.
+
+The demo UI connects to a vLLM server and streams progress as each agent completes — see the [User Guide](user_guide.md#demo-ui) for setup instructions.
+
+---
+
 ## Key Features
 
 <div class="grid cards" markdown>
@@ -15,21 +25,18 @@ from video and audio content.
 - :material-account-group: **Multi-Agent Coordination**
 
     ---
-
     Specialized agents for planning, reasoning, and reflection work together
     through a LangGraph workflow with conditional branching.
 
 - :material-brain: **Chain-of-Thought Reasoning**
 
     ---
-
     Step-by-step analysis with explicit reasoning traces, self-verification
     at each step, and confidence scoring.
 
 - :material-clock-outline: **Temporal Grounding**
 
     ---
-
     Frame-captioning index splits video into segments, captions each with
     time-sliced video and audio, and injects a timestamped index into
     prompts for accurate second-level citations.
@@ -37,23 +44,22 @@ from video and audio content.
 - :material-magnify: **Self-Reflection**
 
     ---
-
     Automatic quality assessment with iterative refinement until a
     confidence threshold is met. Detects gaps and hallucinations.
 
 - :material-format-list-numbered: **Multi-Step Planning**
 
     ---
-
     Automatic decomposition of complex queries into sub-tasks with
     sequential execution and context passing.
 
 - :material-lightning-bolt: **Efficient Processing**
 
     ---
-
     vLLM backend with tensor parallelism, prompt caching, smart video
-    segmentation, and per-segment audio/video slicing.
+    segmentation, and per-segment audio/video slicing. Supports both
+    embedded inference and a decoupled server mode with parallel
+    temporal indexing.
 
 </div>
 
