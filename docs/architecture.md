@@ -148,6 +148,8 @@ is loaded as before.
 ```text
 sonic-o1-agent/
 ├── src/sonic_o1_agent/
+│   ├── api.py                        # FastAPI demo server (vLLM server mode)
+│   ├── demo/                         # Demo UI (HTML/CSS/JS)
 │   ├── agents/                       # Multi-Agent System
 │   │   ├── sonic_agent.py            # Main orchestrator
 │   │   ├── planner.py                # Planning agent
@@ -203,3 +205,23 @@ The model wrapper (`qwen_model.py`) handles:
 - Chat template formatting via `Qwen3OmniMoeProcessor`
 - Text-only generation for intermediate reasoning steps
 - Multimodal generation with time-range-aware video and audio slicing
+
+### Dual Backend: Embedded vs Server Mode
+
+The model wrapper (`qwen_model.py`) supports two backends, selected by a
+single config key:
+
+| Backend | When | How |
+|---------|------|-----|
+| **Embedded** | `vllm_base_url` absent or empty | Loads model in-process via `vllm.LLM`. Original behaviour. |
+| **Server** | `vllm_base_url` set (e.g. `http://localhost:8080/v1`) | Connects to a running `vllm serve` via OpenAI SDK. |
+
+In server mode, video frames are **extracted client-side** using the same
+`process_video_with_metadata` logic as embedded mode (respecting
+`max_frames`, `min_frames`, and time-range slicing), then sent as base64
+JPEGs. This gives identical frame sampling behaviour regardless of backend
+while enabling vLLM's continuous batching for concurrent requests.
+
+The temporal index builder automatically parallelises segment captioning
+in server mode via `ThreadPoolExecutor`, sending multiple caption requests
+simultaneously to the vLLM server.

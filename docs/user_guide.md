@@ -125,6 +125,12 @@ All settings are in `configs/agent_config.yaml`.
 model:
   model_path: "Qwen/Qwen3-Omni-30B-A3B-Instruct"
   use_thinking: false
+
+  # vLLM backend mode (optional):
+  #   Set to connect to a running vllm serve instance.
+  #   Empty or omitted = embedded mode (loads model in-process).
+  # vllm_base_url: "http://localhost:8080/v1"
+
   gpu_memory_utilization: 0.85
   tensor_parallel_size: 4        # Number of GPUs
   max_num_seqs: 1
@@ -215,6 +221,86 @@ tail -f logs/sonic_agent_*.out
 
 ---
 
+## Demo UI
+
+> **[▶ Watch the demo video](https://drive.google.com/file/d/1e1qv4JCKqeDc7UdZTIx1-c39zqXNKWtr/view?usp=sharing)**
+
+The demo provides a web interface for uploading videos and querying the
+multi-agent pipeline. It streams real-time progress as each agent
+completes — planning, temporal indexing, inference, and reflection — with
+a live thinking panel showing intermediate results.
+
+### Running the Demo
+
+The demo connects to a vLLM server via the OpenAI-compatible API. This
+separates model serving from the application, enabling continuous batching
+and parallel temporal indexing.
+
+**Step 1 — Start the vLLM server:**
+
+```bash
+vllm serve Qwen/Qwen3-Omni-30B-A3B-Instruct \
+  --port 8080 --host 0.0.0.0 \
+  --dtype bfloat16 --max-model-len 32768 \
+  --allowed-local-media-path / \
+  -tp 1
+```
+
+Adjust `-tp` to match your GPU count (e.g., `-tp 4` for 4 GPUs with
+`--max-model-len 65536`). Wait for `Uvicorn running on http://0.0.0.0:8080`.
+
+**Step 2 — Start the demo server** (separate terminal, same node):
+
+```bash
+PYTHONPATH=src python -c "
+from sonic_o1_agent.api import serve
+serve(
+    vllm_base_url='http://localhost:8080/v1',
+    port=8000,
+    config_path='configs/agent_config.yaml',
+)
+"
+```
+
+**Step 3 — Open in your browser:**
+
+```
+http://localhost:8000
+```
+
+If running on a remote server or HPC cluster, forward the port:
+
+```bash
+ssh -L 8000:<node>:8000 user@login-server
+```
+
+### Server Mode from CLI
+
+You can also use the vLLM server backend from the CLI (without the demo
+UI). Add `vllm_base_url` to your config:
+
+```yaml
+model:
+  vllm_base_url: "http://localhost:8080/v1"
+```
+
+Or pass it as an environment variable:
+
+```bash
+VLLM_BASE_URL=http://localhost:8080/v1 python scripts/run_agent.py \
+  --config configs/agent_config.yaml \
+  --video video.mp4 --audio audio.m4a \
+  --query "Summarize the key points" \
+  --all-features
+```
+
+!!! info "Backward compatibility"
+    When `vllm_base_url` is empty or absent, the system uses the embedded
+    vLLM engine (loads model in-process). All existing CLI usage is
+    completely unchanged.
+
+---
+
 ## CLI Reference
 
 ```text
@@ -254,7 +340,6 @@ SONIC-O1 AGENT RESPONSE
 ======================================================================
 
 Query: Compare the defense attorney's arguments vs the prosecutor's
-
 Mode: chain_of_thought
 
 Evidence:

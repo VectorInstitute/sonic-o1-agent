@@ -16,16 +16,13 @@ dependencies = [
     "torchvision>=0.15.0",
     "transformers>=4.35.0",
     "accelerate>=0.20.0",
-
     # vLLM for efficient inference (required for Qwen3-Omni)
-    "vllm>=0.5.0",
+    "vllm>=0.13.0",
     "langgraph>=0.2.0",
     # Pin ray>=2.54.0 to address CVE-2026-27482 (audit fails on 2.53.0)
     "ray>=2.54.0",
-
     # Qwen3-Omni specific
     "qwen-omni-utils>=0.0.8",
-
     # Audio/Video processing
     "av>=10.0.0",
     "soundfile>=0.12.0",
@@ -33,21 +30,17 @@ dependencies = [
     "opencv-python>=4.8.0",
     "ffmpeg-python>=0.2.0",
     "imageio>=2.0.0",
-
     # Data handling
     "numpy>=1.24.0",
     "pandas>=2.0.0",
     "pillow>=10.0.0",
-
     # ML utilities
     "einops>=0.8.0",
     "timm>=0.9.0",
     "safetensors>=0.4.0",
-
     # Configuration and logging
     "pyyaml>=6.0.0",
     "python-dotenv>=1.0.0",
-
     # Progress and utilities
     "tqdm>=4.65.0",
 ]
