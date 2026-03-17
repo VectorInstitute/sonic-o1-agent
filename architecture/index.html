@@ -580,6 +580,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Model Backend">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dual-backend-embedded-vs-server-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dual Backend: Embedded vs Server Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -762,6 +779,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Model Backend">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dual-backend-embedded-vs-server-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dual Backend: Embedded vs Server Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -996,37 +1030,39 @@ is loaded as before.</p>
 <h2 id="directory-structure">Directory Structure<a class="headerlink" href="#directory-structure" title="Permanent link">&para;</a></h2>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>sonic-o1-agent/
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>├── src/sonic_o1_agent/
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>│   ├── agents/                       # Multi-Agent System
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>│   │   ├── sonic_agent.py            # Main orchestrator
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>│   │   ├── planner.py                # Planning agent
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>│   │   ├── planner_advanced.py       # Multi-step decomposition
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>│   │   ├── reasoner.py               # Chain-of-Thought agent
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>│   │   └── reflection.py             # Self-reflection agent
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>│   ├── models/                       # Model wrappers
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>│   │   └── qwen_model.py             # Qwen3-Omni + vLLM
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>│   ├── core/                         # Multimodal processing
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>│   │   ├── multimodal_engine.py      # Orchestration (backward compatible)
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>│   │   ├── video_processor.py        # Video processing (PyAV)
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>│   │   ├── audio_processor.py       # Audio processing (PyAV)
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>│   │   └── multimodal_utils.py     # Shared utilities &amp; constants
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>│   ├── processors/                   # Prompt engineering &amp; indexing
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>│   │   ├── prompt_builder.py         # Dynamic prompt construction
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>│   │   └── temporal_index.py         # Frame-captioned segment grounding
-</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>│   ├── workflows/                    # LangGraph orchestration
-</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>│   │   ├── state.py                  # SonicState (workflow state schema)
-</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>│   │   ├── nodes.py                  # All workflow node functions
-</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>│   │   └── graph.py                  # StateGraph with conditional edges
-</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>│   └── utils/                        # Utilities
-</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>│       └── segmenter.py              # Video/audio segmentation (ffmpeg)
-</span><span id="__span-2-25"><a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>├── configs/
-</span><span id="__span-2-26"><a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>│   └── agent_config.yaml             # System configuration
-</span><span id="__span-2-27"><a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>├── scripts/
-</span><span id="__span-2-28"><a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>│   ├── run_agent.py                  # CLI entry point
-</span><span id="__span-2-29"><a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>│   └── verify_setup.py              # Setup verification
-</span><span id="__span-2-30"><a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>├── slurm/
-</span><span id="__span-2-31"><a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>│   └── run_sonic_agent_native.sh     # SLURM job script
-</span><span id="__span-2-32"><a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>├── docs/                             # MkDocs documentation
-</span><span id="__span-2-33"><a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>└── tests/                            # Unit &amp; integration tests
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>│   ├── api.py                        # FastAPI demo server (vLLM server mode)
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>│   ├── demo/                         # Demo UI (HTML/CSS/JS)
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>│   ├── agents/                       # Multi-Agent System
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>│   │   ├── sonic_agent.py            # Main orchestrator
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>│   │   ├── planner.py                # Planning agent
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>│   │   ├── planner_advanced.py       # Multi-step decomposition
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>│   │   ├── reasoner.py               # Chain-of-Thought agent
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>│   │   └── reflection.py             # Self-reflection agent
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>│   ├── models/                       # Model wrappers
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>│   │   └── qwen_model.py             # Qwen3-Omni + vLLM
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>│   ├── core/                         # Multimodal processing
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>│   │   ├── multimodal_engine.py      # Orchestration (backward compatible)
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>│   │   ├── video_processor.py        # Video processing (PyAV)
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>│   │   ├── audio_processor.py       # Audio processing (PyAV)
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>│   │   └── multimodal_utils.py     # Shared utilities &amp; constants
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>│   ├── processors/                   # Prompt engineering &amp; indexing
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>│   │   ├── prompt_builder.py         # Dynamic prompt construction
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>│   │   └── temporal_index.py         # Frame-captioned segment grounding
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>│   ├── workflows/                    # LangGraph orchestration
+</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>│   │   ├── state.py                  # SonicState (workflow state schema)
+</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>│   │   ├── nodes.py                  # All workflow node functions
+</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>│   │   └── graph.py                  # StateGraph with conditional edges
+</span><span id="__span-2-25"><a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>│   └── utils/                        # Utilities
+</span><span id="__span-2-26"><a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>│       └── segmenter.py              # Video/audio segmentation (ffmpeg)
+</span><span id="__span-2-27"><a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>├── configs/
+</span><span id="__span-2-28"><a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>│   └── agent_config.yaml             # System configuration
+</span><span id="__span-2-29"><a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>├── scripts/
+</span><span id="__span-2-30"><a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>│   ├── run_agent.py                  # CLI entry point
+</span><span id="__span-2-31"><a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>│   └── verify_setup.py              # Setup verification
+</span><span id="__span-2-32"><a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>├── slurm/
+</span><span id="__span-2-33"><a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>│   └── run_sonic_agent_native.sh     # SLURM job script
+</span><span id="__span-2-34"><a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>├── docs/                             # MkDocs documentation
+</span><span id="__span-2-35"><a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>└── tests/                            # Unit &amp; integration tests
 </span></code></pre></div>
 <hr />
 <h2 id="model-backend">Model Backend<a class="headerlink" href="#model-backend" title="Permanent link">&para;</a></h2>
@@ -1073,6 +1109,38 @@ multi-GPU inference.</p>
 <li>Text-only generation for intermediate reasoning steps</li>
 <li>Multimodal generation with time-range-aware video and audio slicing</li>
 </ul>
+<h3 id="dual-backend-embedded-vs-server-mode">Dual Backend: Embedded vs Server Mode<a class="headerlink" href="#dual-backend-embedded-vs-server-mode" title="Permanent link">&para;</a></h3>
+<p>The model wrapper (<code>qwen_model.py</code>) supports two backends, selected by a
+single config key:</p>
+<table>
+<thead>
+<tr>
+<th>Backend</th>
+<th>When</th>
+<th>How</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Embedded</strong></td>
+<td><code>vllm_base_url</code> absent or empty</td>
+<td>Loads model in-process via <code>vllm.LLM</code>. Original behaviour.</td>
+</tr>
+<tr>
+<td><strong>Server</strong></td>
+<td><code>vllm_base_url</code> set (e.g. <code>http://localhost:8080/v1</code>)</td>
+<td>Connects to a running <code>vllm serve</code> via OpenAI SDK.</td>
+</tr>
+</tbody>
+</table>
+<p>In server mode, video frames are <strong>extracted client-side</strong> using the same
+<code>process_video_with_metadata</code> logic as embedded mode (respecting
+<code>max_frames</code>, <code>min_frames</code>, and time-range slicing), then sent as base64
+JPEGs. This gives identical frame sampling behaviour regardless of backend
+while enabling vLLM's continuous batching for concurrent requests.</p>
+<p>The temporal index builder automatically parallelises segment captioning
+in server mode via <code>ThreadPoolExecutor</code>, sending multiple caption requests
+simultaneously to the vLLM server.</p>
 
 
 
