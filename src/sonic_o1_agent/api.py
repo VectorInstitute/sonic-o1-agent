@@ -13,12 +13,11 @@ import logging
 import os
 import shutil
 import subprocess
-import tempfile
 import time
 import uuid
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, AsyncGenerator, Dict, Generator, Optional
+from typing import Any, AsyncGenerator, Dict, Generator
 
 import uvicorn
 import yaml
@@ -134,7 +133,9 @@ def health(request: Request) -> HealthResponse:
     agent = getattr(request.app.state, "agent", None)
     vllm_url = getattr(request.app.state, "vllm_base_url", "")
     if agent is not None:
-        return HealthResponse(status="ok", model="Qwen3-Omni-30B-A3B", vllm_url=vllm_url)
+        return HealthResponse(
+            status="ok", model="Qwen3-Omni-30B-A3B", vllm_url=vllm_url
+        )
     return HealthResponse(status="starting", model="not loaded", vllm_url=vllm_url)
 
 
@@ -165,18 +166,31 @@ async def analyze_stream(
     file_mb = video_path.stat().st_size / (1024 * 1024)
     if file_mb > MAX_UPLOAD_MB:
         shutil.rmtree(session_dir, ignore_errors=True)
-        raise HTTPException(422, f"File too large: {file_mb:.0f} MB (max {MAX_UPLOAD_MB} MB).")
+        raise HTTPException(
+            422, f"File too large: {file_mb:.0f} MB (max {MAX_UPLOAD_MB} MB)."
+        )
 
     # --- Extract audio via ffmpeg ------------------------------------------
     audio_path = session_dir / "audio.wav"
     try:
         subprocess.run(
             [
-                "ffmpeg", "-y", "-i", str(video_path),
-                "-vn", "-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1",
+                "ffmpeg",
+                "-y",
+                "-i",
+                str(video_path),
+                "-vn",
+                "-acodec",
+                "pcm_s16le",
+                "-ar",
+                "16000",
+                "-ac",
+                "1",
                 str(audio_path),
             ],
-            capture_output=True, timeout=120, check=True,
+            capture_output=True,
+            timeout=120,
+            check=True,
         )
     except Exception as e:
         logger.warning("Audio extraction failed: %s — continuing video-only", e)
@@ -186,12 +200,18 @@ async def analyze_stream(
     try:
         probe = subprocess.run(
             [
-                "ffprobe", "-v", "error",
-                "-show_entries", "format=duration",
-                "-of", "default=noprint_wrappers=1:nokey=1",
+                "ffprobe",
+                "-v",
+                "error",
+                "-show_entries",
+                "format=duration",
+                "-of",
+                "default=noprint_wrappers=1:nokey=1",
                 str(video_path),
             ],
-            capture_output=True, text=True, timeout=30,
+            capture_output=True,
+            text=True,
+            timeout=30,
         )
         duration = float(probe.stdout.strip())
         if duration > MAX_VIDEO_DURATION:
@@ -267,7 +287,9 @@ async def analyze_stream(
                     if "reflection" in state_update:
                         progress["reflection"] = state_update["reflection"]
                     if "hallucination_assessment" in state_update:
-                        progress["hallucination_assessment"] = state_update["hallucination_assessment"]
+                        progress["hallucination_assessment"] = state_update[
+                            "hallucination_assessment"
+                        ]
                     if "was_refined" in state_update:
                         progress["was_refined"] = state_update["was_refined"]
 
@@ -283,10 +305,17 @@ async def analyze_stream(
 
             # Optional fields
             for key in [
-                "reasoning_chain", "reasoning_confidence", "reasoning_trace",
-                "steps_executed", "multi_step_plan", "evidence",
-                "reflection", "was_refined", "original_response",
-                "refinement_history", "hallucination_assessment",
+                "reasoning_chain",
+                "reasoning_confidence",
+                "reasoning_trace",
+                "steps_executed",
+                "multi_step_plan",
+                "evidence",
+                "reflection",
+                "was_refined",
+                "original_response",
+                "refinement_history",
+                "hallucination_assessment",
             ]:
                 if key in accumulated_state:
                     result[key] = accumulated_state[key]
@@ -347,7 +376,7 @@ def serve(
     app.state.config_path = config_path
 
     print(f"{'=' * 60}")
-    print(f"  🎬 Sonic O1 Agent — Demo Server")
+    print("  🎬 Sonic O1 Agent — Demo Server")
     print(f"  http://localhost:{port}")
     if vllm_base_url:
         print(f"  vLLM backend: {vllm_base_url}")

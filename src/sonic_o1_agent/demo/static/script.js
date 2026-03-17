@@ -15,15 +15,15 @@
    const analyzeBtn   = document.getElementById("analyze-btn");
    const pipelineEl   = document.getElementById("pipeline");
    const resultsEl    = document.getElementById("results");
-   
+
    const MAX_CHARS = 2000;
    let selectedFile = null;
    let currentAbort = null;
-   
+
    // ============================================================
    // FILE UPLOAD
    // ============================================================
-   
+
    uploadZone.addEventListener("click", () => videoInput.click());
    uploadZone.addEventListener("dragover", (e) => {
      e.preventDefault();
@@ -39,11 +39,11 @@
        handleFile(e.dataTransfer.files[0]);
      }
    });
-   
+
    videoInput.addEventListener("change", () => {
      if (videoInput.files.length > 0) handleFile(videoInput.files[0]);
    });
-   
+
    fileRemove.addEventListener("click", () => {
      selectedFile = null;
      videoInput.value = "";
@@ -51,7 +51,7 @@
      uploadZone.classList.remove("hidden");
      updateAnalyzeBtn();
    });
-   
+
    function handleFile(file) {
      if (!file.type.startsWith("video/")) {
        alert("Please select a video file.");
@@ -64,16 +64,16 @@
      uploadZone.classList.add("hidden");
      updateAnalyzeBtn();
    }
-   
+
    function formatSize(bytes) {
      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + " KB";
      return (bytes / (1024 * 1024)).toFixed(1) + " MB";
    }
-   
+
    // ============================================================
    // EXAMPLE CHIPS
    // ============================================================
-   
+
    document.querySelectorAll(".example-chip").forEach(chip => {
      chip.addEventListener("click", () => {
        queryText.value = chip.dataset.text;
@@ -81,11 +81,11 @@
        queryText.focus();
      });
    });
-   
+
    // ============================================================
    // CHAR COUNTER + BUTTON STATE
    // ============================================================
-   
+
    queryText.addEventListener("input", () => {
      const len = queryText.value.length;
      charCountEl.textContent = `${len} / ${MAX_CHARS}`;
@@ -94,20 +94,20 @@
      if (len >= MAX_CHARS)      charCountEl.classList.add("error");
      updateAnalyzeBtn();
    });
-   
+
    function updateAnalyzeBtn() {
      analyzeBtn.disabled = !(selectedFile && queryText.value.trim().length > 0);
    }
-   
+
    // ============================================================
    // ANALYZE — SSE STREAM
    // ============================================================
-   
+
    analyzeBtn.addEventListener("click", runAnalysis);
    queryText.addEventListener("keydown", (e) => {
      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") runAnalysis();
    });
-   
+
    // Map LangGraph node names to our pipeline UI nodes
    const NODE_MAP = {
      "planning":          "planning",
@@ -119,7 +119,7 @@
      "reflection":        "reflection",
      "cleanup":           "cleanup",
    };
-   
+
    async function runAnalysis() {
      const query = queryText.value.trim();
      if (!selectedFile || !query) return;
@@ -127,25 +127,25 @@
        alert("Query too long.");
        return;
      }
-   
+
      // Reset UI
      analyzeBtn.disabled = true;
      resultsEl.classList.add("hidden");
      pipelineEl.classList.remove("hidden");
      resetPipeline();
-   
+
      // Cancel any in-flight request
      if (currentAbort) currentAbort.abort();
      currentAbort = new AbortController();
-   
+
      // Build form data
      const formData = new FormData();
      formData.append("video", selectedFile);
      formData.append("query", query);
-   
+
      const startTime = Date.now();
      let completedNodes = new Set();
-   
+
      // Live elapsed timer on active node
      const timerInterval = setInterval(() => {
        const activeNode = document.querySelector(".pipeline-node.active");
@@ -154,43 +154,43 @@
          activeNode.querySelector(".node-time").textContent = elapsed + "s...";
        }
      }, 1000);
-   
+
      try {
        const res = await fetch("/analyze/stream", {
          method: "POST",
          body: formData,
          signal: currentAbort.signal,
        });
-   
+
        if (!res.ok) {
          let detail = "Server error (" + res.status + ")";
          try { detail = (await res.json()).detail || detail; } catch {}
          throw new Error(detail);
        }
-   
+
        const reader = res.body.getReader();
        const decoder = new TextDecoder();
        let buffer = "";
-   
+
        while (true) {
          const { done, value } = await reader.read();
          if (done) break;
-   
+
          buffer += decoder.decode(value, { stream: true });
          const lines = buffer.split("\n");
          buffer = lines.pop();
-   
+
          for (const line of lines) {
            if (!line.startsWith("data: ")) continue;
            let payload;
            try { payload = JSON.parse(line.slice(6)); } catch { continue; }
-   
+
            if (payload.node !== undefined) {
              // Pipeline progress event
              const uiNode = NODE_MAP[payload.node] || payload.node;
              markNodeDone(uiNode, payload.elapsed);
              completedNodes.add(uiNode);
-   
+
              // ── PLANNING ──────────────────────────────────────
              if (payload.node === "planning") {
                if (payload.query_type) {
@@ -211,12 +211,12 @@
                  addThinking("planning", "Direct inference mode — no decomposition needed");
                }
              }
-   
+
              // ── SEGMENTATION ──────────────────────────────────
              if (payload.node === "segmentation") {
                addThinking("processing", "Video preprocessed for analysis");
              }
-   
+
              // ── TEMPORAL INDEXING ──────────────────────────────
              if (payload.node === "temporal_indexing") {
                if (payload.temporal_index) {
@@ -231,11 +231,11 @@
                  addThinking("processing", "Temporal index unavailable.");
                }
              }
-   
+
              // ── INFERENCE (direct / reasoning / multi_step) ───
              if (payload.node === "direct" || payload.node === "reasoning" || payload.node === "multi_step") {
                updateNodeDesc("inference", "Response generated");
-   
+
                if (payload.reasoning_chain && payload.reasoning_chain.length > 0) {
                  addThinking("inference", `<strong>Chain-of-Thought</strong> — ${payload.reasoning_chain.length} reasoning steps:`);
                  payload.reasoning_chain.forEach(step => {
@@ -245,16 +245,16 @@
                    if (result) addThinking("inference", escapeHtml(result));
                  });
                }
-   
+
                if (payload.steps_executed) {
                  addThinking("inference", `<strong>Multi-step execution:</strong> ${Object.keys(payload.steps_executed).length} steps completed`);
                }
-   
+
                if (payload.response) {
                  addThinking("inference", `<strong>Generated Response:</strong>`);
                  addThinkingBlock("inference", payload.response);
                }
-   
+
                if (payload.evidence) {
                  if (payload.evidence.video) {
                    const v = payload.evidence.video;
@@ -266,7 +266,7 @@
                  }
                }
              }
-   
+
              // ── REFLECTION ────────────────────────────────────
              if (payload.node === "reflection") {
                const ref = payload.reflection || {};
@@ -307,48 +307,48 @@
                  addThinking("reflection", `Response was <strong>refined</strong> based on self-evaluation`);
                }
              }
-   
+
              // ── CLEANUP ───────────────────────────────────────
              if (payload.node === "cleanup") {
                addThinking("processing", "✓ Pipeline complete — rendering final results");
              }
-   
+
              // Activate next node
              const allNodes = ["planning", "segmentation", "temporal_indexing", "inference", "reflection", "cleanup"];
              const idx = allNodes.indexOf(uiNode);
              if (idx >= 0 && idx < allNodes.length - 1) {
                activateNode(allNodes[idx + 1]);
              }
-   
+
            } else if (payload.result !== undefined) {
              // Final result
              clearInterval(timerInterval);
              renderResults(payload.result);
-   
+
            } else if (payload.error !== undefined) {
              clearInterval(timerInterval);
              throw new Error(payload.error);
            }
          }
        }
-   
+
      } catch (err) {
        clearInterval(timerInterval);
        alert("Analysis failed: " + err.message);
      }
-   
+
      analyzeBtn.disabled = false;
    }
-   
+
    // ============================================================
    // PIPELINE UI
    // ============================================================
-   
+
    function updateNodeDesc(nodeName, text) {
      const el = document.querySelector(`.pipeline-node[data-node="${nodeName}"] .node-desc`);
      if (el) el.textContent = text;
    }
-   
+
    function addThinking(type, html) {
      const log = document.getElementById("thinking-log");
      if (!log) return;
@@ -361,7 +361,7 @@
      log.appendChild(entry);
      log.scrollTop = log.scrollHeight;
    }
-   
+
    function addThinkingBlock(type, text) {
      const log = document.getElementById("thinking-log");
      if (!log) return;
@@ -374,7 +374,7 @@
      log.appendChild(entry);
      log.scrollTop = log.scrollHeight;
    }
-   
+
    function resetPipeline() {
      document.querySelectorAll(".pipeline-node").forEach(n => {
        n.classList.remove("active", "done");
@@ -396,14 +396,14 @@
      // Activate first node
      activateNode("planning");
    }
-   
+
    function activateNode(nodeName) {
      const el = document.querySelector(`.pipeline-node[data-node="${nodeName}"]`);
      if (el && !el.classList.contains("done")) {
        el.classList.add("active");
      }
    }
-   
+
    function markNodeDone(nodeName, elapsed) {
      const el = document.querySelector(`.pipeline-node[data-node="${nodeName}"]`);
      if (!el) return;
@@ -412,42 +412,42 @@
      if (elapsed != null) {
        el.querySelector(".node-time").textContent = elapsed.toFixed(1) + "s";
      }
-   
+
      // Mark connector before this node as done
      const prev = el.previousElementSibling;
      if (prev && prev.classList.contains("pipeline-connector")) {
        prev.classList.add("done");
      }
    }
-   
+
    // ============================================================
    // RENDER RESULTS
    // ============================================================
-   
+
    function renderResults(data) {
      resultsEl.classList.remove("hidden");
      resultsEl.scrollIntoView({ behavior: "smooth", block: "start" });
-   
+
      // Answer — render with markdown formatting
      document.getElementById("answer-text").innerHTML = renderMarkdown(data.response || "");
-   
+
      // Confidence
      renderConfidence(data);
-   
+
      // Multi-step plan
      renderPlan(data);
-   
+
      // Reasoning chain
      renderReasoning(data);
-   
+
      // Reflection
      renderReflection(data);
    }
-   
+
    function renderConfidence(data) {
      const badge = document.getElementById("confidence-value");
      let confidence = null;
-   
+
      if (data.reflection && data.reflection.final_confidence != null) {
        confidence = data.reflection.final_confidence;
      } else if (data.reflection && data.reflection.confidence != null) {
@@ -455,7 +455,7 @@
      } else if (data.confidence != null) {
        confidence = data.confidence;
      }
-   
+
      if (confidence != null) {
        const pct = (confidence * 100).toFixed(0) + "%";
        badge.textContent = pct;
@@ -468,20 +468,20 @@
        badge.className = "confidence-value";
      }
    }
-   
+
    function renderPlan(data) {
      const section = document.getElementById("plan-section");
      const list = document.getElementById("plan-list");
      list.innerHTML = "";
-   
+
      const plan = data.multi_step_plan || [];
      if (plan.length === 0) {
        section.classList.add("hidden");
        return;
      }
-   
+
      section.classList.remove("hidden");
-   
+
      plan.forEach((step, idx) => {
        const el = document.createElement("div");
        el.className = "plan-step";
@@ -492,20 +492,20 @@
        list.appendChild(el);
      });
    }
-   
+
    function renderReasoning(data) {
      const section = document.getElementById("reasoning-section");
      const list = document.getElementById("reasoning-list");
      list.innerHTML = "";
-   
+
      const chain = data.reasoning_chain || [];
      if (chain.length === 0) {
        section.classList.add("hidden");
        return;
      }
-   
+
      section.classList.remove("hidden");
-   
+
      chain.forEach((step) => {
        const el = document.createElement("div");
        el.className = "reasoning-step";
@@ -519,33 +519,33 @@
        list.appendChild(el);
      });
    }
-   
+
    function renderReflection(data) {
      const section = document.getElementById("reflection-section");
      const ref = data.reflection;
-   
+
      if (!ref) {
        section.classList.add("hidden");
        return;
      }
-   
+
      section.classList.remove("hidden");
-   
+
      // Score cards — only available in single-shot reflection mode
      const scoresEl = document.getElementById("score-cards");
      scoresEl.innerHTML = "";
-   
+
      const scores = ref.scores || {};
      const criteria = ["completeness", "accuracy", "clarity", "evidence"];
      let hasScores = false;
-   
+
      criteria.forEach(key => {
        const val = scores[key];
        if (val == null) return;
        hasScores = true;
        const pct = val * 10;
        const tier = pct >= 80 ? "high" : pct >= 50 ? "medium" : "low";
-   
+
        const card = document.createElement("div");
        card.className = "score-card";
        card.innerHTML = `
@@ -555,7 +555,7 @@
        `;
        scoresEl.appendChild(card);
      });
-   
+
      // In iterative mode, show total attempts as a summary card if no scores
      if (!hasScores && ref.total_attempts) {
        const card = document.createElement("div");
@@ -567,12 +567,12 @@
        `;
        scoresEl.appendChild(card);
      }
-   
+
      // Hallucination
      const hallCard = document.getElementById("hallucination-card");
      const hallValue = document.getElementById("hallucination-value");
      const hall = data.hallucination_assessment;
-   
+
      if (hall) {
        hallCard.classList.remove("hidden");
        const sev = (hall.severity || "NONE").toLowerCase();
@@ -581,12 +581,12 @@
      } else {
        hallCard.classList.add("hidden");
      }
-   
+
      // Refinement history
      const refSection = document.getElementById("refinement-section");
      const refList = document.getElementById("refinement-list");
      refList.innerHTML = "";
-   
+
      const history = data.refinement_history || (ref.refinement_history) || [];
      if (history.length > 0) {
        refSection.classList.remove("hidden");
@@ -605,11 +605,11 @@
        refSection.classList.add("hidden");
      }
    }
-   
+
    // ============================================================
    // COPY BUTTON
    // ============================================================
-   
+
    document.getElementById("copy-btn").addEventListener("click", () => {
      const text = document.getElementById("answer-text").textContent;
      if (!text) return;
@@ -620,11 +620,11 @@
        setTimeout(() => { btn.innerHTML = original; }, 1800);
      });
    });
-   
+
    // ============================================================
    // UTILITY
    // ============================================================
-   
+
    function escapeHtml(str) {
      return String(str || "")
        .replace(/&/g, "&amp;")
@@ -633,7 +633,7 @@
        .replace(/"/g, "&quot;")
        .replace(/\n/g, "<br/>");
    }
-   
+
    /**
     * Lightweight markdown → HTML renderer.
     * Handles: **bold**, *italic*, `code`, headings (##), bullet lists (* / -),
@@ -641,22 +641,22 @@
     */
    function renderMarkdown(text) {
      if (!text) return "";
-   
+
      // Escape HTML entities first
      let html = String(text)
        .replace(/&/g, "&amp;")
        .replace(/</g, "&lt;")
        .replace(/>/g, "&gt;");
-   
+
      // Split into lines for block-level processing
      const lines = html.split("\n");
      const output = [];
      let inList = false;
      let listType = null; // 'ul' or 'ol'
-   
+
      for (let i = 0; i < lines.length; i++) {
        let line = lines[i];
-   
+
        // Headings
        if (/^####\s+(.+)/.test(line)) {
          closeList();
@@ -673,7 +673,7 @@
          output.push(`<h2 class="md-h2">${RegExp.$1}</h2>`);
          continue;
        }
-   
+
        // Bullet list (* or -)
        const bulletMatch = line.match(/^\s*[\*\-]\s+(.+)/);
        if (bulletMatch) {
@@ -681,7 +681,7 @@
          output.push(`<li>${inlineFormat(bulletMatch[1])}</li>`);
          continue;
        }
-   
+
        // Numbered list (1. 2. etc)
        const numMatch = line.match(/^\s*(\d+)\.\s+(.+)/);
        if (numMatch) {
@@ -689,22 +689,22 @@
          output.push(`<li>${inlineFormat(numMatch[2])}</li>`);
          continue;
        }
-   
+
        // Empty line = paragraph break
        if (line.trim() === "") {
          closeList();
          output.push("<br/>");
          continue;
        }
-   
+
        // Regular text line
        closeList();
        output.push(`<p class="md-p">${inlineFormat(line)}</p>`);
      }
-   
+
      closeList();
      return output.join("\n");
-   
+
      function closeList() {
        if (inList) {
          output.push(listType === "ol" ? "</ol>" : "</ul>");
@@ -713,7 +713,7 @@
        }
      }
    }
-   
+
    /** Inline markdown: **bold**, *italic*, `code` */
    function inlineFormat(text) {
      return text
