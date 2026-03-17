@@ -10,7 +10,7 @@ from video and audio content.
 
 ## Demo
 
-<video src="https://drive.google.com/file/d/1e1qv4JCKqeDc7UdZTIx1-c39zqXNKWtr/preview" width="100%" controls></video>
+<iframe src="https://drive.google.com/file/d/1e1qv4JCKqeDc7UdZTIx1-c39zqXNKWtr/preview" width="100%" height="480" frameborder="0" allowfullscreen></iframe>
 
 > **[▶ Watch the full demo video](https://drive.google.com/file/d/1e1qv4JCKqeDc7UdZTIx1-c39zqXNKWtr/view?usp=sharing)** — Upload a video, ask a question, and watch the multi-agent pipeline analyze it in real-time with planning, temporal indexing, chain-of-thought reasoning, and self-reflection.
 
