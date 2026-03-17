@@ -58,8 +58,6 @@ sonic-o1-agent/
 
 ## Demo UI
 
-https://github.com/user-attachments/assets/placeholder
-
 > **[▶ Watch the demo video](https://drive.google.com/file/d/1e1qv4JCKqeDc7UdZTIx1-c39zqXNKWtr/view?usp=sharing)**
 
 The demo provides a web interface for uploading videos and querying the multi-agent pipeline. It streams real-time progress as each agent completes — planning, temporal indexing, inference, and reflection — with a live thinking panel showing intermediate results.
