@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Agentic audio-video processing with Qwen3-Omni"
 readme = "README.md"
 authors = [
-    {name = "Ahmed Y. Radwan", email = "ahmed.radwan@vectorinstitute.ai"}
+    {name = "Vector Institute AI Engineering", email = "shaina.raza@vectorinstitute.ai"}
 ]
 license = "Apache-2.0"
 requires-python = ">=3.10"

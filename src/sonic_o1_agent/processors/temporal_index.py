@@ -10,7 +10,6 @@ that vLLM's continuous batching can process them concurrently.
 In embedded mode, segments are captioned serially (the in-process
 vLLM engine is single-threaded).
 
-Author: Ahmed Y. Radwan, SONIC-O1 Team
 """
 
 import logging

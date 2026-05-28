@@ -1,7 +1,4 @@
-"""LangGraph nodes for Sonic O1 workflow.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""LangGraph nodes for Sonic O1 workflow."""
 
 import logging
 import tempfile

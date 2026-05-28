@@ -1,7 +1,4 @@
-"""LangGraph workflow definition.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""LangGraph workflow definition."""
 
 from langgraph.graph import END, StateGraph
 

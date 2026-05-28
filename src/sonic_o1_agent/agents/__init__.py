@@ -1,7 +1,4 @@
-"""Agent components for planning and orchestration.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Agent components for planning and orchestration."""
 
 from sonic_o1_agent.agents.planner import AgentPlanner
 from sonic_o1_agent.agents.planner_advanced import MultiStepPlanner

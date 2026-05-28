@@ -1,7 +1,4 @@
-"""Advanced multi-step planning and task decomposition.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Advanced multi-step planning and task decomposition."""
 
 import logging
 from typing import Any, Dict, List, Optional

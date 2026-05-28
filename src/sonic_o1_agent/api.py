@@ -5,7 +5,6 @@ Qwen3-Omni.  The user is expected to start the vLLM server separately
 (e.g. ``vllm serve Qwen/Qwen3-Omni-30B-A3B-Instruct ...``) and then
 run ``sonic-o1-agent serve --vllm-url <URL>`` to launch this demo.
 
-Author: Ahmed Y. Radwan, SONIC-O1 Team
 """
 
 import json

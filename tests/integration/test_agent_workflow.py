@@ -1,7 +1,4 @@
-"""Integration tests for agent workflow with LangGraph.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Integration tests for agent workflow with LangGraph."""
 
 import pytest
 

@@ -1,7 +1,4 @@
-"""Unit tests for multimodal processing engine.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Unit tests for multimodal processing engine."""
 
 import numpy as np
 

@@ -1,7 +1,4 @@
-"""Video and audio segmentation utilities.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Video and audio segmentation utilities."""
 
 import logging
 import subprocess

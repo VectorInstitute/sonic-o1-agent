@@ -1,7 +1,4 @@
-"""Self-reflection and confidence estimation module.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Self-reflection and confidence estimation module."""
 
 import logging
 import re

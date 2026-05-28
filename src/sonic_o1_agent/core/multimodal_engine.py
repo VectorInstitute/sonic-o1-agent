@@ -6,7 +6,6 @@ Memory-efficient frame sampling and optimized audio loading with chunking.
 This module provides orchestration functions that coordinate video and audio processing.
 For direct access to video/audio processors, see video_processor.py and audio_processor.py.
 
-Author: Ahmed Y. Radwan, SONIC-O1 Team
 """
 
 from typing import Any, Dict, List, Optional, Tuple

@@ -10,7 +10,6 @@ Supports two backends:
 The public API (``load``, ``generate``, ``unload``, etc.) is identical
 regardless of which backend is active.
 
-Author: Ahmed Y. Radwan, SONIC-O1 Team
 """
 
 import base64

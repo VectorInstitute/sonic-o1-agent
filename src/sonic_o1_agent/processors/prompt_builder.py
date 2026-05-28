@@ -1,7 +1,4 @@
-"""Dynamic prompt construction for different query types.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Dynamic prompt construction for different query types."""
 
 import logging
 from typing import Dict, Optional

@@ -2,7 +2,6 @@
 
 Memory-efficient audio loading with chunking and resampling.
 
-Author: Ahmed Y. Radwan, SONIC-O1 Team
 """
 
 import logging
@@ -105,8 +104,12 @@ def load_audio_pyav(
             indices = np.clip(indices, 0, len(audio) - 1)
             audio = audio[indices]
         else:
-            indices = np.linspace(0, len(audio) - 1, new_length)
-            audio = np.interp(indices, np.arange(len(audio)), audio)
+            resample_positions = np.linspace(0, len(audio) - 1, new_length)
+            audio = np.interp(
+                resample_positions,
+                np.arange(len(audio), dtype=np.float64),
+                audio.astype(np.float64),
+            ).astype(np.float32)
 
     # Apply chunking if requested
     if max_chunks is not None:

@@ -1,7 +1,4 @@
-"""Model wrappers for multimodal inference.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Model wrappers for multimodal inference."""
 
 from sonic_o1_agent.models.qwen_model import Qwen3OmniModel
 

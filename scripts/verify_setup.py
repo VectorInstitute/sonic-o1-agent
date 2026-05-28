@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""Verify sonic-o1-agent setup and run basic tests.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Verify sonic-o1-agent setup and run basic tests."""
 
 import sys
 from pathlib import Path

@@ -1,7 +1,4 @@
-"""Unit tests for MultiStepPlanner.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Unit tests for MultiStepPlanner."""
 
 from sonic_o1_agent.agents.planner_advanced import MultiStepPlanner
 

@@ -103,13 +103,21 @@ a deep dive into the multi-agent workflow and temporal grounding strategy.
 
 ```bibtex
 @software{sonic_o1_multi_agent,
-  author = {Radwan, Ahmed Y.},
+  author = {{Vector Institute AI Engineering Team}},
   title = {Sonic O1: A Multi-Agent System for Audio-Video Understanding},
   year = {2026},
   publisher = {Vector Institute},
   note = {Compound AI system with planning, reasoning, and reflection agents}
 }
 ```
+
+---
+
+## Contact
+
+Developed by the **AI Engineering** team at the [Vector Institute](https://vectorinstitute.ai).
+
+For research collaborations, partnerships, or technical inquiries, please contact **Shaina Raza, PhD** at shaina.raza@vectorinstitute.ai.
 
 ---
 

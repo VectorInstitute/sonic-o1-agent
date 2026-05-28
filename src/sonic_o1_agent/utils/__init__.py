@@ -1,7 +1,4 @@
-"""Utility functions for sonic-o1-agent.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Utility functions for sonic-o1-agent."""
 
 from sonic_o1_agent.utils.segmenter import VideoSegmenter
 

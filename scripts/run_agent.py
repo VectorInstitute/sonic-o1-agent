@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""Entry point for Sonic O1 Agent.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Entry point for Sonic O1 Agent."""
 
 import argparse
 import json
