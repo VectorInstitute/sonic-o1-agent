@@ -460,6 +460,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#contact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contact
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#acknowledgments" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -641,6 +652,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#contact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contact
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#acknowledgments" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -731,21 +753,22 @@ temporal indexing.</p>
 </div>
 <hr />
 <h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Edit config with your model path</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>vim<span class="w"> </span>configs/agent_config.yaml
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Edit SLURM script with your video/audio paths</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>vim<span class="w"> </span>slurm/run_sonic_agent_native.sh
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># Submit job</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>sbatch<span class="w"> </span>slurm/run_sonic_agent_native.sh
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd</span><span class="w"> </span>sonic-o1-agent
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>uv<span class="w"> </span>sync<span class="w"> </span>--link-mode<span class="o">=</span>copy
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># Embedded mode (no vllm serve): set model.vllm_base_url: &quot;&quot; in configs/agent_config.yaml</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># Match model.tensor_parallel_size to your GPU count (nvidia-smi)</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>vim<span class="w"> </span>configs/agent_config.yaml
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1"># Monitor</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>tail<span class="w"> </span>-f<span class="w"> </span>logs/sonic_agent_*.out
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>sonic-o1-agent<span class="w"> </span>--video<span class="w"> </span>video.mp4<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;Summarize the key points&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span>--config<span class="w"> </span>configs/agent_config.yaml
 </span></code></pre></div>
-<p>See the <a href="user_guide/">User Guide</a> for detailed usage examples and
-configuration options, or the <a href="architecture/">Architecture</a> page for
-a deep dive into the multi-agent workflow and temporal grounding strategy.</p>
+<p>For SLURM, edit <code>slurm/run_sonic_agent_native.sh</code> and run <code>sbatch slurm/run_sonic_agent_native.sh</code>.</p>
+<p>See the <a href="user_guide/">User Guide</a> for installation, embedded vs. server mode,
+GPU troubleshooting, usage examples, and configuration. See <a href="architecture/">Architecture</a>
+for a deep dive into the multi-agent workflow and temporal grounding strategy.</p>
 <hr />
 <h2 id="agent-modes">Agent Modes<a class="headerlink" href="#agent-modes" title="Permanent link">&para;</a></h2>
 <table>
@@ -793,13 +816,17 @@ a deep dive into the multi-agent workflow and temporal grounding strategy.</p>
 <hr />
 <h2 id="citation">Citation<a class="headerlink" href="#citation" title="Permanent link">&para;</a></h2>
 <div class="language-bibtex highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nc">@software</span><span class="p">{</span><span class="nl">sonic_o1_multi_agent</span><span class="p">,</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="na">author</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Radwan, Ahmed Y.}</span><span class="p">,</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="na">author</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{{Vector Institute AI Engineering Team}}</span><span class="p">,</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="na">title</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Sonic O1: A Multi-Agent System for Audio-Video Understanding}</span><span class="p">,</span>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="na">year</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{2026}</span><span class="p">,</span>
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="na">publisher</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Vector Institute}</span><span class="p">,</span>
 </span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="na">note</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Compound AI system with planning, reasoning, and reflection agents}</span>
 </span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">}</span>
 </span></code></pre></div>
+<hr />
+<h2 id="contact">Contact<a class="headerlink" href="#contact" title="Permanent link">&para;</a></h2>
+<p>Developed by the <strong>AI Engineering</strong> team at the <a href="https://vectorinstitute.ai">Vector Institute</a>.</p>
+<p>For research collaborations, partnerships, or technical inquiries, please contact <strong>Shaina Raza, PhD</strong> at shaina.raza@vectorinstitute.ai.</p>
 <hr />
 <h2 id="acknowledgments">Acknowledgments<a class="headerlink" href="#acknowledgments" title="Permanent link">&para;</a></h2>
 <p>Resources used in preparing this research were provided, in part, by the Province
