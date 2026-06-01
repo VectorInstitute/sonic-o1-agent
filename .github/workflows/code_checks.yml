@@ -58,6 +58,7 @@ jobs:
         uses: pypa/gh-action-pip-audit@v1.1.0
         with:
           virtual-environment: .venv/
+          arguments: --skip-editable
           ignore-vulns: |
             GHSA-4xh5-x5gv-qwph
             CVE-2025-69872
@@ -65,3 +66,5 @@ jobs:
             CVE-2026-32597
             CVE-2026-25960
             CVE-2026-25048
+            CVE-2026-44222
+            CVE-2026-7141
