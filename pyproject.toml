@@ -19,9 +19,9 @@ dependencies = [
     # vLLM for efficient inference (required for Qwen3-Omni)
     # >=0.19.1: CVE-2026-7141 (kv_cache has_mamba_layers); VL DoS fixes in recent releases
     "vllm>=0.19.1",
-    "langgraph>=0.2.0",
-    # Pin ray>=2.54.0 to address CVE-2026-27482 (audit fails on 2.53.0)
-    "ray>=2.54.0",
+    "langgraph>=1.0.10",
+    # ray>=2.55.0: CVE-2026-41486 (Parquet extension deserialization)
+    "ray>=2.55.0",
     # Qwen3-Omni specific
     "qwen-omni-utils>=0.0.8",
     # Audio/Video processing
@@ -34,14 +34,14 @@ dependencies = [
     # Data handling
     "numpy>=1.24.0",
     "pandas>=2.0.0",
-    "pillow>=10.0.0",
+    "pillow>=12.2.0",
     # ML utilities
     "einops>=0.8.0",
     "timm>=0.9.0",
     "safetensors>=0.4.0",
     # Configuration and logging
     "pyyaml>=6.0.0",
-    "python-dotenv>=1.0.0",
+    "python-dotenv>=1.2.2",
     # Progress and utilities
     "tqdm>=4.65.0",
 ]
@@ -49,7 +49,7 @@ dependencies = [
 [project.optional-dependencies]
 # Development tools
 dev = [
-    "pytest>=8.0.0",
+    "pytest>=9.0.3",
     "pytest-cov>=4.0.0",
     "pytest-mock>=3.0.0",
     "ruff>=0.3.0",
@@ -63,6 +63,7 @@ docs = [
     "mkdocs>=1.5.0",
     "mkdocs-material>=9.0.0",
     "mkdocstrings[python]>=0.24.0",
+    "pymdown-extensions>=10.21.3",
 ]
 
 # Full installation
@@ -72,6 +73,23 @@ all = [
 
 [project.scripts]
 sonic-o1-agent = "sonic_o1_agent.cli:main"
+
+[tool.uv]
+# Force patched transitive versions (pip-audit / CVE fixes).
+override-dependencies = [
+    "aiohttp>=3.13.4",
+    "cbor2>=5.9.0",
+    "cryptography>=46.0.7",
+    "idna>=3.15",
+    "langchain-core>=1.3.3",
+    "langsmith>=0.8.0",
+    "pygments>=2.20.0",
+    "pyjwt>=2.12.0",
+    "python-multipart>=0.0.27",
+    "requests>=2.33.0",
+    "starlette>=1.0.1",
+    "urllib3>=2.7.0",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -115,6 +133,7 @@ omit = ["tests/*", "*__init__.py"]
 [dependency-groups]
 dev = [
     "mypy>=1.8.0",
-    "pytest>=9.0.2",
+    "pip-audit>=2.10.0",
+    "pytest>=9.0.3",
     "types-PyYAML>=6.0.0",
 ]
