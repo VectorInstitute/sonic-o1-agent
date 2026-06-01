@@ -58,6 +58,7 @@ jobs:
         uses: pypa/gh-action-pip-audit@v1.1.0
         with:
           virtual-environment: .venv/
+          arguments: --skip-editable
           ignore-vulns: |
             GHSA-4xh5-x5gv-qwph
             CVE-2025-69872
@@ -65,3 +66,17 @@ jobs:
             CVE-2026-32597
             CVE-2026-25960
             CVE-2026-25048
+            CVE-2026-44222
+            # diskcache (vLLM transitive): no patched release on PyPI yet
+            # transformers: Trainer torch.load RCE; fix only in 5.0.0rc3 pre-release
+            CVE-2026-1839
+            # transformers PYSEC-2025-211..218: checkpoint-conversion RCEs with no
+            # stable fix in OSV; we do not load attacker-controlled checkpoints.
+            PYSEC-2025-211
+            PYSEC-2025-212
+            PYSEC-2025-213
+            PYSEC-2025-214
+            PYSEC-2025-215
+            PYSEC-2025-216
+            PYSEC-2025-217
+            PYSEC-2025-218
