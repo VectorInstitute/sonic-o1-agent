@@ -75,7 +75,7 @@ all = [
 sonic-o1-agent = "sonic_o1_agent.cli:main"
 
 [tool.uv]
-# Force patched transitive versions (pip-audit / CVE fixes).
+# patched transitive versions (pip-audit / CVE fixes).
 override-dependencies = [
     "aiohttp>=3.13.4",
     "cbor2>=5.9.0",

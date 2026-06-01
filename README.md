@@ -1,5 +1,4 @@
 # SONIC-O1 Multi-Agent System
-
 A compound multi-agent system for audio-video understanding built on Qwen3-Omni and vLLM.
 
 [![website](https://img.shields.io/badge/website-ff00ff)](https://vectorinstitute.github.io/sonic-o1-agent/)
