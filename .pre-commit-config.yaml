@@ -36,14 +36,15 @@ repos:
     - id: ruff-format
       types_or: [python, jupyter]
 
-  - repo: local
+  # ← changed: mirrors-mypy instead of local
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.1
     hooks:
     - id: mypy
-      name: mypy
-      entry: uv run mypy --config-file pyproject.toml
+      entry: python3 -m mypy --config-file pyproject.toml
       language: system
       types: [python]
-      exclude: "tests|src/sonic_o1_agent/api\\.py"
+      exclude: "tests"
 
   - repo: https://github.com/crate-ci/typos
     rev: v1

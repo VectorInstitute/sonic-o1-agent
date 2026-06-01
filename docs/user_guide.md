@@ -5,25 +5,100 @@
 ### Prerequisites
 
 - Python 3.10+
-- CUDA-capable GPUs (4x recommended for tensor parallelism)
-- [uv](https://docs.astral.sh/uv/) package manager (optional; you can use pip in a container)
+- CUDA-capable GPUs (4× recommended for the default 30B model with tensor parallelism; 1 GPU works if `tensor_parallel_size` is set to `1`)
+- [uv](https://docs.astral.sh/uv/) package manager (recommended)
 
-### Setup
+### Setup (after cloning)
 
 ```bash
-# Clone the repository
 git clone https://github.com/VectorInstitute/sonic-o1-agent.git
 cd sonic-o1-agent
 
-# Install dependencies (with uv)
-uv sync --all-extras --group docs --group test
+# On network/cluster filesystems: use copy mode to avoid hardlink errors
+uv sync --link-mode=copy
 
-# Or with pip (e.g. inside a Singularity container)
-pip install -e ".[docs]"   # installs package + docs deps
+# Install the sonic-o1-agent package and CLI
+uv pip install .
 
-# Verify setup
+# Activate the project virtual environment
+source .venv/bin/activate
+```
+
+If activation does not switch Python to the venv, run:
+
+```bash
+export PATH="$(pwd)/.venv/bin:$PATH"
+export VIRTUAL_ENV="$(pwd)/.venv"
+```
+
+Confirm:
+
+```bash
+which python          # should be .../sonic-o1-agent/.venv/bin/python
+sonic-o1-agent --help
+```
+
+Optional extras (docs, dev tools):
+
+```bash
+uv sync --link-mode=copy --all-extras --group docs --group test
+```
+
+Verify imports and config:
+
+```bash
 python scripts/verify_setup.py
 ```
+
+---
+
+## Embedded mode vs. vLLM server
+
+| Backend | Description | Configuration |
+|---------|-------------|---------------|
+| **Embedded** | Loads Qwen3-Omni in-process via `vllm.LLM` (no separate server) | `model.vllm_base_url: ""` |
+| **Server** | Connects to a running `vllm serve` instance | `model.vllm_base_url: "http://<host>:<port>/v1"` |
+
+**If you do not have a vLLM server running**, use embedded mode. In `configs/agent_config.yaml`:
+
+```yaml
+model:
+  vllm_base_url: ""   # empty string
+```
+
+- **Field name:** `vllm_base_url` (under the `model:` key in `configs/agent_config.yaml`)
+- **Override:** set environment variable `VLLM_BASE_URL` (non-empty enables server mode)
+
+Embedded-only settings (`tensor_parallel_size`, `gpu_memory_utilization`, `max_model_len`, …) apply when `vllm_base_url` is empty. Server mode uses the external vLLM process for inference; start it separately with matching `-tp` (tensor parallel) size.
+
+---
+
+## Troubleshooting
+
+### `World size (N) is larger than the number of available GPUs`
+
+This occurs in **embedded mode** when `tensor_parallel_size` in the config exceeds the GPUs allocated to your job or shell.
+
+**1. Check how many GPUs are visible:**
+
+```bash
+nvidia-smi
+```
+
+**2. Match `model.tensor_parallel_size` in `configs/agent_config.yaml`:**
+
+```yaml
+model:
+  tensor_parallel_size: 1   # one GPU
+  # tensor_parallel_size: 4   # four GPUs
+```
+
+| `nvidia-smi` shows | Set `tensor_parallel_size` | Example Slurm |
+|--------------------|----------------------------|---------------|
+| 1 GPU | `1` | `--gres=gpu:a100:1` |
+| 4 GPUs | `4` | `--gres=gpu:a100:4` |
+
+The value must equal the number of GPUs vLLM is allowed to use, not the number you wish you had.
 
 ### Building the documentation
 
@@ -42,13 +117,18 @@ PYTHONPATH=src python -m mkdocs build
 
 ## Usage Examples
 
+Run from the repository root with the virtual environment activated (see
+[Installation](#setup-after-cloning)). If `sonic-o1-agent` is not on your
+`PATH`, prefix commands with `uv run` (e.g. `uv run sonic-o1-agent ...`).
+
 ### Basic Inference (Direct Mode)
 
 The simplest mode uses the Planner and Temporal Index to produce a
 grounded response in a single pass.
 
 ```bash
-python scripts/run_agent.py \
+sonic-o1-agent \
+  --config configs/agent_config.yaml \
   --video courtroom.mp4 --audio courtroom.m4a \
   --query "Summarize the key arguments"
 ```
@@ -59,7 +139,8 @@ Enables the Reasoner agent for step-by-step analysis with explicit
 reasoning traces.
 
 ```bash
-python scripts/run_agent.py \
+sonic-o1-agent \
+  --config configs/agent_config.yaml \
   --video hearing.mp4 \
   --query "Analyze the legal strategy used" \
   --reasoning
@@ -71,7 +152,8 @@ Enables the Reflection agent to evaluate response quality and
 iteratively refine until the confidence threshold is met.
 
 ```bash
-python scripts/run_agent.py \
+sonic-o1-agent \
+  --config configs/agent_config.yaml \
   --video deposition.mp4 \
   --query "What inconsistencies exist in the testimony?" \
   --reflection
@@ -83,7 +165,8 @@ Enables the advanced Planner to automatically decompose complex queries
 into sequential sub-tasks.
 
 ```bash
-python scripts/run_agent.py \
+sonic-o1-agent \
+  --config configs/agent_config.yaml \
   --video trial.mp4 \
   --query "Compare the defense attorney's arguments vs the prosecutor's" \
   --multi-step
@@ -94,7 +177,8 @@ python scripts/run_agent.py \
 Enables all agents working together for maximum capability.
 
 ```bash
-python scripts/run_agent.py \
+sonic-o1-agent \
+  --config configs/agent_config.yaml \
   --video complex_case.mp4 \
   --query "Provide a comprehensive analysis with key contradictions" \
   --all-features \
@@ -108,7 +192,8 @@ The Planner agent automatically detects temporal references and segments
 the video to process only the relevant window.
 
 ```bash
-python scripts/run_agent.py \
+sonic-o1-agent \
+  --config configs/agent_config.yaml \
   --video hearing.mp4 \
   --query "What happened between minute 5 and 10?"
 ```
@@ -126,13 +211,11 @@ model:
   model_path: "Qwen/Qwen3-Omni-30B-A3B-Instruct"
   use_thinking: false
 
-  # vLLM backend mode (optional):
-  #   Set to connect to a running vllm serve instance.
-  #   Empty or omitted = embedded mode (loads model in-process).
-  # vllm_base_url: "http://localhost:8080/v1"
+  # Backend: "" = embedded (in-process); URL = external vllm serve
+  vllm_base_url: ""              # e.g. "http://localhost:8080/v1" for server mode
 
   gpu_memory_utilization: 0.85
-  tensor_parallel_size: 4        # Number of GPUs
+  tensor_parallel_size: 4        # Must match available GPUs (see Troubleshooting)
   max_num_seqs: 1
   max_model_len: 65536
 
@@ -252,14 +335,10 @@ Adjust `-tp` to match your GPU count (e.g., `-tp 4` for 4 GPUs with
 **Step 2 — Start the demo server** (separate terminal, same node):
 
 ```bash
-PYTHONPATH=src python -c "
-from sonic_o1_agent.api import serve
-serve(
-    vllm_base_url='http://localhost:8080/v1',
-    port=8000,
-    config_path='configs/agent_config.yaml',
-)
-"
+sonic-o1-agent serve \
+  --config configs/agent_config.yaml \
+  --vllm-url http://localhost:8080/v1 \
+  --port 8000
 ```
 
 **Step 3 — Open in your browser:**
@@ -287,47 +366,70 @@ model:
 Or pass it as an environment variable:
 
 ```bash
-VLLM_BASE_URL=http://localhost:8080/v1 python scripts/run_agent.py \
+VLLM_BASE_URL=http://localhost:8080/v1 sonic-o1-agent \
   --config configs/agent_config.yaml \
   --video video.mp4 --audio audio.m4a \
   --query "Summarize the key points" \
   --all-features
 ```
 
-!!! info "Backward compatibility"
+!!! info "Embedded mode"
     When `vllm_base_url` is empty or absent, the system uses the embedded
-    vLLM engine (loads model in-process). All existing CLI usage is
-    completely unchanged.
+    vLLM engine (loads model in-process). See
+    [Embedded mode vs. vLLM server](#embedded-mode-vs-vllm-server).
+
+!!! info "Backward compatibility"
+    `python scripts/run_agent.py` with the same flags remains supported as
+    a thin wrapper around the CLI.
 
 ---
 
 ## CLI Reference
 
+Analysis (default command):
+
+```bash
+sonic-o1-agent --help
+```
+
 ```text
-usage: run_agent.py [-h] [--config CONFIG] [--video VIDEO] [--audio AUDIO]
-                    --query QUERY [--max-frames MAX_FRAMES]
-                    [--max-audio-chunks MAX_AUDIO_CHUNKS]
-                    [--reasoning] [--reflection] [--multi-step]
-                    [--all-features] [--output OUTPUT] [--verbose] [--stream]
+usage: sonic-o1-agent [-h] [--config CONFIG] [--video VIDEO] [--audio AUDIO]
+                      --query QUERY [--max-frames MAX_FRAMES]
+                      [--max-audio-chunks MAX_AUDIO_CHUNKS] [--reasoning]
+                      [--reflection] [--multi-step] [--all-features]
+                      [--output OUTPUT] [--verbose] [--stream]
 
 Arguments:
-  --config        Path to config YAML (default: configs/agent_config.yaml)
-  --video         Path to video file
-  --audio         Path to audio file
-  --query         Query/question to ask (required)
-  --max-frames    Override max frames to process
+  --config            Path to config YAML (default: configs/agent_config.yaml)
+  --video             Path to video file
+  --audio             Path to audio file
+  --query             Query/question to ask (required)
+  --max-frames        Override max frames to process
   --max-audio-chunks  Override max audio chunks
 
 Agent Modes:
-  --reasoning     Enable Chain-of-Thought reasoning
-  --reflection    Enable self-reflection and refinement
-  --multi-step    Enable multi-step task decomposition
-  --all-features  Enable all advanced features
+  --reasoning         Enable Chain-of-Thought reasoning
+  --reflection        Enable self-reflection and refinement
+  --multi-step        Enable multi-step task decomposition
+  --all-features      Enable all advanced features
 
 Output:
-  --output        Save results to JSON file
-  --verbose       Show detailed reasoning trace
-  --stream        Stream workflow progress (print each node as it runs; useful in job logs)
+  --output            Save results to JSON file
+  --verbose           Show detailed reasoning trace
+  --stream            Stream workflow progress (print each node as it runs)
+```
+
+Demo server:
+
+```bash
+sonic-o1-agent serve --help
+```
+
+```text
+usage: sonic-o1-agent serve [-h] [--config CONFIG] [--host HOST]
+                            [--port PORT] [--vllm-url VLLM_URL]
+                            [--max-video-duration MAX_VIDEO_DURATION]
+                            [--reload]
 ```
 
 ---

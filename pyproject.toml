@@ -74,6 +74,9 @@ all = [
     "sonic-o1-agent[dev,docs]",
 ]
 
+[project.scripts]
+sonic-o1-agent = "sonic_o1_agent.cli:main"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -112,3 +115,10 @@ ignore_missing_imports = true
 [tool.coverage.run]
 source = ["src/sonic_o1_agent"]
 omit = ["tests/*", "*__init__.py"]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.8.0",
+    "pytest>=9.0.2",
+    "types-PyYAML>=6.0.0",
+]

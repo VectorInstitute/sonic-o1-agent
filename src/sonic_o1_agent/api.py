@@ -37,7 +37,7 @@ MAX_VIDEO_DURATION = int(os.environ.get("MAX_VIDEO_DURATION", "1800"))  # 30 min
 MAX_UPLOAD_MB = int(os.environ.get("MAX_UPLOAD_MB", "500"))
 
 # Upload directory — must be on a shared filesystem visible to BOTH
-# the demo server and the vLLM server (they may be in separate containers).
+# the demo server and the vLLM server (they may run on different hosts).
 # Falls back to a project-level path; override via SONIC_UPLOAD_DIR env var.
 _default_upload_dir = os.environ.get(
     "SONIC_UPLOAD_DIR",
@@ -153,12 +153,16 @@ async def analyze_stream(
     if not query.strip():
         raise HTTPException(422, "Query cannot be empty.")
 
+    filename = video.filename
+    if not filename:
+        raise HTTPException(422, "Uploaded file must have a filename.")
+
     # --- Save uploaded file ------------------------------------------------
     session_id = uuid.uuid4().hex[:12]
     session_dir = UPLOAD_DIR / session_id
     session_dir.mkdir(parents=True, exist_ok=True)
 
-    video_path = session_dir / video.filename
+    video_path = session_dir / filename
     with open(video_path, "wb") as f:
         shutil.copyfileobj(video.file, f)
 
@@ -170,7 +174,7 @@ async def analyze_stream(
         )
 
     # --- Extract audio via ffmpeg ------------------------------------------
-    audio_path = session_dir / "audio.wav"
+    audio_path: Path | None = session_dir / "audio.wav"
     try:
         subprocess.run(
             [

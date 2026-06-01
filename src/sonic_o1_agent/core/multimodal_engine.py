@@ -241,4 +241,11 @@ def process_mm_info(
                         # Handle images if needed
                         pass
 
-    return audios, images, videos, metadata
+    # Return None (not []) for empty modalities — vLLM v1 rejects empty lists in
+    # multi_modal_data when the corresponding UUID field is absent.
+    return (
+        audios if audios else None,
+        images if images else None,
+        videos if videos else None,
+        metadata,
+    )
