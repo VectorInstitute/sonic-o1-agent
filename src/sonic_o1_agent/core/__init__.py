@@ -1,7 +1,4 @@
-"""Core multimodal processing engines.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Core multimodal processing engines."""
 
 # Import from multimodal_engine for backward compatibility
 # All exports are re-exported from the split modules

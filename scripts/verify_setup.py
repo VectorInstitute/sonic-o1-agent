@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""Verify sonic-o1-agent setup and run basic tests.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Verify sonic-o1-agent setup and run basic tests."""
 
 import sys
 from pathlib import Path
@@ -207,8 +204,8 @@ def main():
         print_success(f"{BOLD}All checks passed!{RESET}")
         print()
         print("Next steps:")
-        print("  1. Edit slurm/run_sonic_agent.sh with your video/audio paths")
-        print("  2. Submit job: sbatch slurm/run_sonic_agent.sh")
+        print("  1. Edit slurm/run_sonic_agent_native.sh with your video/audio paths")
+        print("  2. Submit job: sbatch slurm/run_sonic_agent_native.sh")
         print("  3. Monitor: tail -f logs/sonic_agent_*.out")
         return 0
     else:

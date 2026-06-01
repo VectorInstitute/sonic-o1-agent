@@ -1,5 +1,4 @@
 # Sonic O1 Agent Configuration
-# Author: Ahmed Y. Radwan, SONIC-O1 Team
 #
 # TEST CONFIG — Server mode enabled (connects to external vLLM serve)
 #
@@ -41,7 +40,7 @@ model:
   # in-process via vllm.LLM, same as original behaviour).
   #
   # Can also be overridden by VLLM_BASE_URL environment variable.
-  vllm_base_url: "http://localhost:8080/v1" # "" to use no server
+  vllm_base_url: "" # "" to use no server - just transformer
 
   # ═══════════════════════════════════════════════════════════════════
   # Embedded vLLM settings (only used when vllm_base_url is empty)

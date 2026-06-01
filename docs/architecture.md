@@ -178,7 +178,7 @@ sonic-o1-agent/
 │   ├── run_agent.py                  # CLI entry point
 │   └── verify_setup.py              # Setup verification
 ├── slurm/
-│   └── run_sonic_agent_native.sh     # SLURM job script
+│   └── run_sonic_agent_native.sh     # SLURM job script (template)
 ├── docs/                             # MkDocs documentation
 └── tests/                            # Unit & integration tests
 ```

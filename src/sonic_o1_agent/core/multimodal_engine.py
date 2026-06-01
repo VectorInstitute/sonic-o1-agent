@@ -6,7 +6,6 @@ Memory-efficient frame sampling and optimized audio loading with chunking.
 This module provides orchestration functions that coordinate video and audio processing.
 For direct access to video/audio processors, see video_processor.py and audio_processor.py.
 
-Author: Ahmed Y. Radwan, SONIC-O1 Team
 """
 
 from typing import Any, Dict, List, Optional, Tuple
@@ -242,4 +241,11 @@ def process_mm_info(
                         # Handle images if needed
                         pass
 
-    return audios, images, videos, metadata
+    # Return None (not []) for empty modalities — vLLM v1 rejects empty lists in
+    # multi_modal_data when the corresponding UUID field is absent.
+    return (
+        audios if audios else None,
+        images if images else None,
+        videos if videos else None,
+        metadata,
+    )

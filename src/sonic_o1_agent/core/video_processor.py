@@ -2,7 +2,6 @@
 
 Memory-efficient video frame sampling and processing.
 
-Author: Ahmed Y. Radwan, SONIC-O1 Team
 """
 
 import logging
@@ -29,6 +28,23 @@ from sonic_o1_agent.core.multimodal_utils import (
 )
 
 logger = logging.getLogger(__name__)
+
+_RESAMPLE = Image.Resampling.BICUBIC
+
+
+def _stream_fps(video_stream: av.VideoStream) -> float:
+    """Return average frame rate as float, with a safe default if unknown."""
+    rate = video_stream.average_rate
+    if rate is None:
+        return 30.0
+    return float(rate)
+
+
+def _container_duration_sec(container: av.container.InputContainer) -> float:
+    """Return container duration in seconds, or 0.0 if unavailable."""
+    if container.duration is None:
+        return 0.0
+    return float(container.duration / av.time_base)
 
 
 # ============================================================================
@@ -57,7 +73,7 @@ def get_video_metadata(video_path: str) -> VideoMetadata:
 
     metadata = VideoMetadata(
         total_frames=video_stream.frames or sum(1 for _ in container.decode(video=0)),
-        fps=float(video_stream.average_rate),
+        fps=_stream_fps(video_stream),
         width=video_stream.width,
         height=video_stream.height,
     )
@@ -85,7 +101,7 @@ def fetch_video_pyav(ele: dict, image_factor: int = IMAGE_FACTOR) -> torch.Tenso
         container = av.open(video_path)
         video_stream = container.streams.video[0]
         total_frames = video_stream.frames or sum(1 for _ in container.decode(video=0))
-        video_fps = float(video_stream.average_rate)
+        video_fps = _stream_fps(video_stream)
         height = video_stream.height
         width = video_stream.width
         container.close()
@@ -206,10 +222,10 @@ def process_video_with_metadata(
     video_stream = container.streams.video[0]
 
     # Get video properties
-    fps = float(video_stream.average_rate)
+    fps = _stream_fps(video_stream)
     total_frames_full = video_stream.frames
     if total_frames_full == 0:
-        full_duration = float(container.duration / av.time_base)
+        full_duration = _container_duration_sec(container)
         total_frames_full = int(full_duration * fps)
     else:
         full_duration = total_frames_full / fps
@@ -272,7 +288,7 @@ def process_video_with_metadata(
             resized_h, resized_w = smart_resize(h, w)
 
             pil_img = Image.fromarray(img)
-            pil_img = pil_img.resize((resized_w, resized_h), Image.BICUBIC)
+            pil_img = pil_img.resize((resized_w, resized_h), _RESAMPLE)
             img_resized = np.array(pil_img)
 
             frames.append(img_resized)

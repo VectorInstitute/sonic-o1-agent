@@ -68,22 +68,24 @@ The demo UI connects to a vLLM server and streams progress as each agent complet
 ## Quick Start
 
 ```bash
-# Edit config with your model path
+cd sonic-o1-agent
+uv sync --link-mode=copy
+uv pip install .
+source .venv/bin/activate
+
+# Embedded mode (no vllm serve): set model.vllm_base_url: "" in configs/agent_config.yaml
+# Match model.tensor_parallel_size to your GPU count (nvidia-smi)
 vim configs/agent_config.yaml
 
-# Edit SLURM script with your video/audio paths
-vim slurm/run_sonic_agent_native.sh
-
-# Submit job
-sbatch slurm/run_sonic_agent_native.sh
-
-# Monitor
-tail -f logs/sonic_agent_*.out
+sonic-o1-agent --video video.mp4 --query "Summarize the key points" \
+  --config configs/agent_config.yaml
 ```
 
-See the [User Guide](user_guide.md) for detailed usage examples and
-configuration options, or the [Architecture](architecture.md) page for
-a deep dive into the multi-agent workflow and temporal grounding strategy.
+For SLURM, edit `slurm/run_sonic_agent_native.sh` and run `sbatch slurm/run_sonic_agent_native.sh`.
+
+See the [User Guide](user_guide.md) for installation, embedded vs. server mode,
+GPU troubleshooting, usage examples, and configuration. See [Architecture](architecture.md)
+for a deep dive into the multi-agent workflow and temporal grounding strategy.
 
 ---
 
@@ -103,13 +105,21 @@ a deep dive into the multi-agent workflow and temporal grounding strategy.
 
 ```bibtex
 @software{sonic_o1_multi_agent,
-  author = {Radwan, Ahmed Y.},
+  author = {{Vector Institute AI Engineering Team}},
   title = {Sonic O1: A Multi-Agent System for Audio-Video Understanding},
   year = {2026},
   publisher = {Vector Institute},
   note = {Compound AI system with planning, reasoning, and reflection agents}
 }
 ```
+
+---
+
+## Contact
+
+Developed by the **AI Engineering** team at the [Vector Institute](https://vectorinstitute.ai).
+
+For research collaborations, partnerships, or technical inquiries, please contact **Shaina Raza, PhD** at shaina.raza@vectorinstitute.ai.
 
 ---
 

@@ -1,7 +1,4 @@
-"""Agent planning and task decomposition.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Agent planning and task decomposition."""
 
 import logging
 import re

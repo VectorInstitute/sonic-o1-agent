@@ -10,7 +10,6 @@ Supports two backends:
 The public API (``load``, ``generate``, ``unload``, etc.) is identical
 regardless of which backend is active.
 
-Author: Ahmed Y. Radwan, SONIC-O1 Team
 """
 
 import base64
@@ -756,6 +755,19 @@ class Qwen3OmniModel:
                 text = text.replace("<|audio_pad|>", "").strip()
                 logger.info("Removed <|audio_pad|> from prompt (no audio available)")
 
+            if not images and "<|image_pad|>" in text:
+                text = text.replace("<|image_pad|>", "").strip()
+                logger.info("Removed <|image_pad|> from prompt (no images available)")
+
+            if videos is not None:
+                videos = [
+                    v
+                    for v in videos
+                    if not (isinstance(v, torch.Tensor) and v.numel() == 0)
+                ]
+                if len(videos) == 0:
+                    videos = None
+
             if max_audio_chunks is not None and audios is not None:
                 self.stats["audio_chunks_sampled"] += 1
 
@@ -763,12 +775,18 @@ class Qwen3OmniModel:
 
             inputs = {"prompt": text, "multi_modal_data": {}}
 
-            if audios is not None:
+            if audios:
                 inputs["multi_modal_data"]["audio"] = audios
-            if images is not None:
+            if images:
                 inputs["multi_modal_data"]["image"] = images
-            if videos is not None:
+            if videos:
                 inputs["multi_modal_data"]["video"] = videos
+
+            if has_video and not videos:
+                raise RuntimeError(
+                    "Video was requested but no frames were extracted "
+                    f"(check path and time range: {video_path})"
+                )
 
             temperature = kwargs.get("temperature", self.temperature)
             top_p = kwargs.get("top_p", self.top_p)

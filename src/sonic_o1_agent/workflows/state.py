@@ -1,7 +1,4 @@
-"""State definition for LangGraph workflow.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""State definition for LangGraph workflow."""
 
 from typing import Any, Dict, List, Optional, Tuple, TypedDict
 

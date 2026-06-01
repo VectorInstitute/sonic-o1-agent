@@ -1,7 +1,4 @@
-"""Pytest configuration and shared fixtures.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Pytest configuration and shared fixtures."""
 
 import pytest
 

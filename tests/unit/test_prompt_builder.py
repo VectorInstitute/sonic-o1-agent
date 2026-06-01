@@ -1,7 +1,4 @@
-"""Unit tests for PromptBuilder.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Unit tests for PromptBuilder."""
 
 from sonic_o1_agent.processors.prompt_builder import PromptBuilder
 

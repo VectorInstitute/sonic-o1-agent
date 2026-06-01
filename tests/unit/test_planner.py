@@ -1,7 +1,4 @@
-"""Unit tests for AgentPlanner.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Unit tests for AgentPlanner."""
 
 from pathlib import Path
 

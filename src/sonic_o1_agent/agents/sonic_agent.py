@@ -1,13 +1,11 @@
-"""Main Sonic O1 Agent with LangGraph integration.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Main Sonic O1 Agent with LangGraph integration."""
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any, Dict, Iterator, List, Optional, cast
 
 from sonic_o1_agent.workflows.graph import build_sonic_workflow
+from sonic_o1_agent.workflows.state import SonicState
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +66,7 @@ class SonicAgent:
             raise ValueError("At least one of video_path or audio_path required")
 
         # Prepare initial state
-        initial_state: Dict[str, Any] = {
+        initial_state: SonicState = {
             "query": query,
             "video_path": video_path,
             "audio_path": audio_path,
@@ -82,7 +80,8 @@ class SonicAgent:
 
         # Run workflow
         logger.info("Running LangGraph workflow...")
-        final_state = self.app.invoke(initial_state)
+        # LangGraph stubs use generic StateT; cast for mypy compatibility.
+        final_state = self.app.invoke(cast(Any, initial_state))
 
         # Extract result
         result = {
@@ -161,7 +160,7 @@ class SonicAgent:
             raise ValueError("Query cannot be empty")
         if video_path is None and audio_path is None:
             raise ValueError("At least one of video_path or audio_path required")
-        initial_state: Dict[str, Any] = {
+        initial_state: SonicState = {
             "query": query,
             "video_path": video_path,
             "audio_path": audio_path,
@@ -173,7 +172,7 @@ class SonicAgent:
             "temp_files": [],
         }
         for event in self.app.stream(
-            initial_state,
+            cast(Any, initial_state),
             stream_mode="updates",
         ):
             for node_name, state_update in event.items():

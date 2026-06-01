@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""Interactive CLI for Sonic O1 Agent.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Interactive CLI for Sonic O1 Agent."""
 
 import json
 import logging
@@ -66,7 +63,8 @@ class InteractiveCLI:
         print("\n" + "=" * 70)
         print("🎬 SONIC O1 MULTI-AGENT SYSTEM - Interactive Mode")
         print("=" * 70)
-        print("Author: Ahmed Y. Radwan, SONIC-O1 Team")
+        print("Developed by Vector Institute AI Engineering")
+        print("Contact: shaina.raza@vectorinstitute.ai")
         print("=" * 70 + "\n")
 
     def get_yes_no(self, prompt: str, default: Optional[bool] = None) -> bool:

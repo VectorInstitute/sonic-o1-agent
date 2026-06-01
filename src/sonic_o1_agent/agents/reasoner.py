@@ -1,7 +1,4 @@
-"""Chain-of-Thought reasoning module.
-
-Author: Ahmed Y. Radwan, SONIC-O1 Team
-"""
+"""Chain-of-Thought reasoning module."""
 
 import logging
 from typing import Any, Dict, List, Optional

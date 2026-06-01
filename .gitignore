@@ -56,9 +56,7 @@ data/outputs/*
 !data/outputs/.gitkeep
 
 # Local configuration and scripts
-slurm/verify_in_container.sh
 slurm/run_sonic_agent.sh
-slurm/run_interactive.sh
 slurm/run_precommit.sh
 
 

@@ -2,7 +2,6 @@
 
 Math helpers, constants, and common utilities used by video and audio processors.
 
-Author: Ahmed Y. Radwan, SONIC-O1 Team
 """
 
 import math
