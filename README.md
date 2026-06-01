@@ -6,7 +6,7 @@ A compound multi-agent system for audio-video understanding built on Qwen3-Omni 
 [![unit tests](https://github.com/VectorInstitute/sonic-o1-agent/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/VectorInstitute/sonic-o1-agent/actions/workflows/unit_tests.yml)
 [![integration tests](https://github.com/VectorInstitute/sonic-o1-agent/actions/workflows/integration_tests.yml/badge.svg)](https://github.com/VectorInstitute/sonic-o1-agent/actions/workflows/integration_tests.yml)
 [![docs](https://github.com/VectorInstitute/sonic-o1-agent/actions/workflows/docs.yml/badge.svg)](https://github.com/VectorInstitute/sonic-o1-agent/actions/workflows/docs.yml)
-[![License: Vector Institute](https://img.shields.io/badge/License-Vector%20Institute-003049.svg)](./LICENSE.md)
+[![License: Vector Institute](https://img.shields.io/badge/License-Apache2.0-003049.svg)](./LICENSE.md)
 [![Contact](https://img.shields.io/badge/Contact-shaina.raza%40vectorinstitute.ai-green)](mailto:shaina.raza@vectorinstitute.ai)
 
 ---
